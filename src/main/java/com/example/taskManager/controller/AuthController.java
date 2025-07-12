@@ -33,14 +33,10 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Response<String>> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            jwtBlacklistService.blacklist(token);
-            return ResponseEntity.ok(Response.success("Đăng xuất thành công"));
-        }
-        throw new RuntimeException("Token không hợp lệ hoặc không được cung cấp");
+    public ResponseEntity<Response<Map<String,String>>> logout(HttpServletRequest request) {
+        return ResponseEntity.ok(
+                Response.success(authService.logout(request))
+        );
     }
 
 }

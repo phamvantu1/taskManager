@@ -7,6 +7,7 @@ import com.example.taskManager.model.DTO.request.RegisterRequest;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.UserRepository;
 import com.example.taskManager.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final JwtBlacklistService jwtBlacklistService;
 
     public Map<String, String> register(RegisterRequest registerRequest) {
         try {
@@ -65,6 +67,24 @@ public class AuthService {
         }
         catch (Exception e) {
             throw new RuntimeException("Login failed: " + e.getMessage());
+        }
+
+    }
+
+    public Map<String, String> logout(HttpServletRequest request){
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                jwtBlacklistService.blacklist(token);
+                return Map.of("message", "Đăng xuất thành công");
+            }
+            throw new CustomException(ResponseCode.UNAUTHORIZED);
+        }catch (CustomException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Logout failed: " + e.getMessage());
         }
 
     }
