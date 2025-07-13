@@ -3,8 +3,11 @@ package com.example.taskManager.service;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.AuthRequest;
+import com.example.taskManager.model.DTO.request.ChangePasswordByOtpRequest;
 import com.example.taskManager.model.DTO.request.RegisterRequest;
 import com.example.taskManager.model.entity.User;
+import com.example.taskManager.model.entity.UserOTP;
+import com.example.taskManager.repository.OtpRepository;
 import com.example.taskManager.repository.UserRepository;
 import com.example.taskManager.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -21,6 +28,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final JwtBlacklistService jwtBlacklistService;
+    private final EmailService emailService;
+    private final OtpRepository otpRepository;
 
     public Map<String, String> register(RegisterRequest registerRequest) {
         try {
@@ -86,7 +95,85 @@ public class AuthService {
         catch (Exception e) {
             throw new RuntimeException("Logout failed: " + e.getMessage());
         }
+    }
 
+    public Map<String, String> forgotPassword(String email) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            SecureRandom secureRandom = new SecureRandom();
+            String OTP = String.format("%06d", secureRandom.nextInt(1000000));
+
+            emailService.sendSimpleEmail(
+                    email,
+                    "Password Reset Request",
+                    "OTP bạn nhận được có hạn trong 10 phút : "+ OTP
+            );
+
+            UserOTP userOTP = new UserOTP();
+            userOTP.setUser(user);
+            userOTP.setOtp_code(OTP);
+            userOTP.setCreated_at(LocalDateTime.now());
+            userOTP.setExpired_at(LocalDateTime.now().plusMinutes(10));
+            userOTP.set_used(false);
+            otpRepository.save(userOTP);
+
+            return Map.of("message", "OTP sent to your email");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Forgot password failed: " + e.getMessage());
+        }
+    }
+
+    public Map<String , String> verifyOtp(String email, String otp){
+        try{
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            UserOTP userOTP = otpRepository.findByUserIdAndOtp(user.getId(), otp);
+
+            if(userOTP == null) {
+                throw new CustomException(ResponseCode.OTP_NOT_FOUND);
+            }
+
+            if (userOTP.is_used()) {
+                throw new CustomException(ResponseCode.OTP_USED);
+            }
+
+            if (userOTP.getExpired_at().isBefore(LocalDateTime.now())) {
+                throw new CustomException(ResponseCode.OTP_EXPIRED);
+            }
+
+            userOTP.set_used(true);
+            otpRepository.save(userOTP);
+
+           return Map.of("message", "OTP verified successfully");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Verify OTP failed: " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> changePasswordByOtp(ChangePasswordByOtpRequest changePasswordByOtpRequest) {
+        try {
+            if (!changePasswordByOtpRequest.getNewPassword().equals(changePasswordByOtpRequest.getConfirmNewPassword())) {
+                throw new CustomException(ResponseCode.CONFIRM_PASSWORD_NOT_MATCH);
+            }
+            User user = userRepository.findByEmail(changePasswordByOtpRequest.getEmail())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            user.setPassword(passwordEncoder.encode(changePasswordByOtpRequest.getNewPassword()));
+            userRepository.save(user);
+
+            return Map.of("message", "Password changed successfully");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Change password failed: " + e.getMessage());
+        }
     }
 
 }

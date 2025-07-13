@@ -24,6 +24,11 @@ public enum ResponseCode {
     EMAIL_ALREADY_EXISTS("ERR_409", "Email đã tồn tại", HttpStatus.CONFLICT),
 
 
+    OTP_NOT_FOUND("ERR_404", "OTP không tồn tại", HttpStatus.NOT_FOUND),
+    OTP_USED("ERR_409", "OTP đã được sử dụng", HttpStatus.CONFLICT),
+    OTP_EXPIRED("ERR_400", "OTP đã hết hạn", HttpStatus.BAD_REQUEST),
+    CONFIRM_PASSWORD_NOT_MATCH("ERR_400", "Mật khẩu xác nhận không khớp", HttpStatus.BAD_REQUEST),
+    INVALID_OLD_PASSWORD("ERR_400", "Mật khẩu cũ không đúng", HttpStatus.BAD_REQUEST),
 
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);
