@@ -37,7 +37,6 @@ public class AuthService {
             if (userRepository.existsByEmail(registerRequest.getEmail())) {
                 throw new CustomException(ResponseCode.EMAIL_ALREADY_EXISTS);
             }
-            // test github
 
             if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
                 throw new CustomException(ResponseCode.CONFIRM_PASSWORD_NOT_MATCH);
