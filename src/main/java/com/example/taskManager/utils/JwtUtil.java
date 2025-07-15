@@ -20,7 +20,7 @@ public class JwtUtil {
     @Value("${application.sercurity.jwt.expiration}")
     private long expiration; // milliseconds
 
-    // 🔐 Sinh token từ username
+    //  Sinh token từ username
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -30,18 +30,18 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🧠 Trích xuất username
+    // Trích xuất username
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // ✅ Kiểm tra token có hợp lệ không
+    // Kiểm tra token có hợp lệ không
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    // 🔍 Kiểm tra token hết hạn chưa
+    //  Kiểm tra token hết hạn chưa
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -50,13 +50,13 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // 🧰 Trích xuất bất kỳ claim nào
+    //  Trích xuất bất kỳ claim nào
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // 🛡️ Parse token để lấy claims
+    //  Parse token để lấy claims
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -65,7 +65,7 @@ public class JwtUtil {
                 .getBody();
     }
 
-    // 🔐 Lấy Key phù hợp HS512 từ secret string
+    //  Lấy Key phù hợp HS512 từ secret string
     private Key getSignInKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);

@@ -38,14 +38,14 @@ public class AuthService {
                 throw new CustomException(ResponseCode.EMAIL_ALREADY_EXISTS);
             }
 
+            if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
+                throw new CustomException(ResponseCode.CONFIRM_PASSWORD_NOT_MATCH);
+            }
+
             // Tạo người dùng mới
             User user = new User();
             user.setEmail(registerRequest.getEmail());
             user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-            user.setFirstName(registerRequest.getFirstName());
-            user.setLastName(registerRequest.getLastName());
-            user.setDateOfBirth(registerRequest.getDateOfBirth());
-
 
             // Lưu người dùng vào cơ sở dữ liệu
             userRepository.save(user);

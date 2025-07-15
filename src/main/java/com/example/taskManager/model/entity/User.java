@@ -20,6 +20,8 @@ public class User {
 
     private String email;
 
+    private String phone;
+
     private String password;
 
     private String firstName;
@@ -27,4 +29,6 @@ public class User {
     private String lastName;
 
     private LocalDate DateOfBirth;
+
+    private String  gender;
 }
