@@ -31,6 +31,8 @@ public enum ResponseCode {
     CONFIRM_PASSWORD_NOT_MATCH("ERR_400", "Mật khẩu xác nhận không khớp", HttpStatus.BAD_REQUEST),
     INVALID_OLD_PASSWORD("ERR_400", "Mật khẩu cũ không đúng", HttpStatus.BAD_REQUEST),
 
+    PROJECT_NOT_FOUND("ERR_404", "Không tìm thấy dự án", HttpStatus.NOT_FOUND),
+
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);
 

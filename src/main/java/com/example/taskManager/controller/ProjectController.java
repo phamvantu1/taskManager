@@ -26,4 +26,9 @@ public class ProjectController {
                                                       @RequestParam(name = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(Response.success(projectService.getAllProjects(page, size)));
     }
+
+    @GetMapping("/get-info-project")
+    public ResponseEntity<Response<?>> getInfoProject(@RequestParam(name = "projectId") Long projectId) {
+        return ResponseEntity.ok(Response.success(projectService.getInfoProject(projectId)));
+    }
 }
