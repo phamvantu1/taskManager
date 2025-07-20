@@ -1,6 +1,6 @@
 package com.example.taskManager.service;
 
-import com.example.taskManager.common.constant.ProjectEnum;
+import com.example.taskManager.common.constant.ProjectStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.ProjectRequest;
@@ -32,10 +32,12 @@ public class ProjectService {
             project.setDescription(projectRequest.getDescription());
             project.setEndTime(projectRequest.getEndTime());
             project.setStartTime(projectRequest.getStartTime());
-            project.setStatus(ProjectEnum.PENDING.name());
+            project.setStatus(ProjectStatusEnum.PENDING.name());
+            project.setType(projectRequest.getType());
 
-            User user = userRepository.findById(projectRequest.getUserId())
+            User user = userRepository.findById(projectRequest.getOwnerId())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
             project.setOwner(user);
 
             projectRepository.save(project);

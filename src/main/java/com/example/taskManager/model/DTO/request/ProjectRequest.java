@@ -1,11 +1,7 @@
 package com.example.taskManager.model.DTO.request;
 
-import com.example.taskManager.model.entity.User;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class ProjectRequest {
@@ -14,11 +10,13 @@ public class ProjectRequest {
 
     private String description;
 
-    private LocalDateTime startTime;
+    private LocalDate startTime;
 
-    private LocalDateTime endTime;
+    private LocalDate endTime;
 
-    private Long userId;
+    private Long ownerId;
+
+    private String type;
 
 
 }

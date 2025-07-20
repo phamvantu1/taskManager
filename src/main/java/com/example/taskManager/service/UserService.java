@@ -2,14 +2,14 @@ package com.example.taskManager.service;
 
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
-import com.example.taskManager.model.DTO.request.AuthRequest;
 import com.example.taskManager.model.DTO.request.ChangePasswordRequest;
-import com.example.taskManager.model.DTO.request.RegisterRequest;
 import com.example.taskManager.model.DTO.request.UserInforRequest;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.UserRepository;
-import com.example.taskManager.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,6 +88,16 @@ public class UserService {
        } catch (Exception e) {
            throw new RuntimeException(e.getMessage());
        }
+    }
 
+    public Page<User> getAllUsers(int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            return userRepository.findAll(pageable);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve users: " + e.getMessage());
+        }
     }
 }

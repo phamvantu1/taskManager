@@ -37,4 +37,10 @@ public class UserController {
                 Response.success(userService.updateUserInformation(userInforRequest, authentication))
         );
     }
+
+    @GetMapping("/get-all-users")
+    public ResponseEntity<Response<?>> getAllUsers(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                              @RequestParam(name = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(Response.success(userService.getAllUsers(page, size)));
+    }
 }
