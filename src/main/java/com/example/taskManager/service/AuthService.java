@@ -46,6 +46,7 @@ public class AuthService {
             User user = new User();
             user.setEmail(registerRequest.getEmail());
             user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            user.setActive(true);
 
             // Lưu người dùng vào cơ sở dữ liệu
             userRepository.save(user);

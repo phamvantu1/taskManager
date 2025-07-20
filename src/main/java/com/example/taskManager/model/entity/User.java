@@ -1,12 +1,12 @@
 package com.example.taskManager.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -31,4 +31,15 @@ public class User {
     private LocalDate DateOfBirth;
 
     private String  gender;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Project> ownedProjects;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL)
+    private List<Task> assignedTasks;
 }
