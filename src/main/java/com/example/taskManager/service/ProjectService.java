@@ -10,6 +10,7 @@ import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProjectService {
 
     private final ProjectRepository projectRepository;

@@ -29,6 +29,10 @@ public class Task {
     @JoinColumn(name = "assigned_to")
     private User assignedTo;
 
+    private Long createdBy;
+
+    private Long lever;
+
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;

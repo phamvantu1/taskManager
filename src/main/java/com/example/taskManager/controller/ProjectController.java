@@ -5,12 +5,13 @@ import com.example.taskManager.common.exception.Response;
 import com.example.taskManager.model.DTO.request.ProjectRequest;
 import com.example.taskManager.service.ProjectService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/projects")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService projectService;
