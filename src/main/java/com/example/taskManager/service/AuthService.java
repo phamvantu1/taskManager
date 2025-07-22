@@ -65,7 +65,7 @@ public class AuthService {
     public Map<String,String> login(AuthRequest authRequest){
         try {
             User user = userRepository.findByEmail(authRequest.getEmail())
-                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ResponseCode.EMAIL_NOT_FOUND));
 
             // So sánh mật khẩu
             if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {

@@ -41,4 +41,13 @@ public class Project {
     @JsonIgnore
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Task> tasks;
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(
+        name = "project_users",
+        joinColumns = @JoinColumn(name = "project_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users;
 }

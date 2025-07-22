@@ -20,6 +20,7 @@ public enum ResponseCode {
 
     // ======= Custom Example =======
     USER_NOT_FOUND("ERR_404", "Không tìm thấy user", HttpStatus.NOT_FOUND),
+    EMAIL_NOT_FOUND("ERR_404", "Email không đúng", HttpStatus.NOT_FOUND),
     PASSWORD_INVALID("ERR_404", "Mật khẩu không đúng", HttpStatus.NOT_FOUND),
     EMAIL_ALREADY_EXISTS("ERR_409", "Email đã tồn tại", HttpStatus.CONFLICT),
     USER_CAN_NOT_UPDATE("ERR_404", "Bạn không thể cập nhập thông tin người khác", HttpStatus.NOT_FOUND),

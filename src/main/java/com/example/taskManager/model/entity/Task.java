@@ -32,6 +32,8 @@ public class Task {
 
     private Long lever;
 
+    private Long process;
+
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
