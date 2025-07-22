@@ -29,4 +29,9 @@ public class TaskController {
                                                    @RequestParam(name = "projectId", required = false) Long projectId) {
         return ResponseEntity.ok(Response.success(taskService.getAllTasks(page, size, textSearch, startTime, endTime, projectId)));
     }
+
+    @GetMapping("/dashboard-tasks-by-project")
+    public ResponseEntity<Response<?>> getDashboardTasksByProject(@RequestParam(name = "projectId", required = false) Long projectId) {
+        return ResponseEntity.ok(Response.success(taskService.getDashboardTasksByProject(projectId)));
+    }
 }

@@ -12,11 +12,13 @@ import com.example.taskManager.repository.UserRepository;
 import com.example.taskManager.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,6 +32,12 @@ public class AuthService {
     private final JwtBlacklistService jwtBlacklistService;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
+
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void removeBlacklistedTokens(){
+        jwtBlacklistService.cleanExpiredTokens();
+    }
 
     public Map<String, String> register(RegisterRequest registerRequest) {
         try {

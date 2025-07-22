@@ -5,6 +5,7 @@ import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.mapper.TaskMapper;
 import com.example.taskManager.model.DTO.request.TaskRequest;
+import com.example.taskManager.model.DTO.response.DashboardTaskResponse;
 import com.example.taskManager.model.DTO.response.TaskResponse;
 import com.example.taskManager.model.entity.Project;
 import com.example.taskManager.model.entity.Task;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -28,7 +30,8 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
-    
+
+
     public Map<String, String > createTask(TaskRequest taskRequest) {
         try{
             Task task = new Task();
@@ -79,6 +82,50 @@ public class TaskService {
                         .orElse(null);
                 return TaskMapper.toTaskResponse(task, createdByUser);
             });
+        } catch(CustomException e){
+            throw e;
+        }catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
+    public DashboardTaskResponse getDashboardTasksByProject(Long projectId) {
+        try {
+
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+
+            long inProgressCount = 0;
+            long completedCount = 0;
+            long pendingCount = 0;
+            long overdueCount = 0;
+
+            DashboardTaskResponse dashboardResponse = new DashboardTaskResponse();
+
+            // Lấy danh sách các task của dự án
+            List<Task> tasks = taskRepository.findAllByProjectId(projectId);
+            for (Task task : tasks) {
+                String status = task.getStatus();
+                if ("IN_PROGRESS".equalsIgnoreCase(status)) {
+                    inProgressCount++;
+                } else if ("COMPLETED".equalsIgnoreCase(status)) {
+                    completedCount++;
+                } else if ("PENDING".equalsIgnoreCase(status)) {
+                    pendingCount++;
+                }else{
+                    overdueCount++;
+                }
+            }
+
+            dashboardResponse.setIN_PROGRESS(inProgressCount);
+            dashboardResponse.setCOMPLETED(completedCount);
+            dashboardResponse.setPENDING(pendingCount);
+            dashboardResponse.setOVERDUE(overdueCount);
+
+            return dashboardResponse;
+
+
         } catch(CustomException e){
             throw e;
         }catch (Exception e) {

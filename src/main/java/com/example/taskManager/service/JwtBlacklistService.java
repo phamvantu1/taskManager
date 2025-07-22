@@ -7,6 +7,7 @@ import com.example.taskManager.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -17,7 +18,7 @@ public class JwtBlacklistService {
     private final BlacklistedTokenRepository repository;
     private final JwtUtil jwtUtil;
 
-    @Scheduled(cron = "0 0 0 * * *")  // Runs daily at midnight
+    @Transactional
     public void cleanExpiredTokens() {
         Date now = new Date();
         repository.deleteAllByExpirationDateBefore(now);

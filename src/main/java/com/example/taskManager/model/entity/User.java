@@ -40,10 +40,6 @@ public class User {
     private List<Project> ownedProjects;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "users")
-    private List<Project> projects;
-
-    @JsonIgnore
     @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL)
     private List<Task> assignedTasks;
 }
