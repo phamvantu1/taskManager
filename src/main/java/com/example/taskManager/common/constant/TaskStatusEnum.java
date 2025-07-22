@@ -1,6 +1,6 @@
 package com.example.taskManager.common.constant;
 
-public enum TaskEnum {
+public enum TaskStatusEnum {
     PENDING,
     IN_PROGRESS,
     COMPLETED,

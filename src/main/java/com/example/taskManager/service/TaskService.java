@@ -1,6 +1,6 @@
 package com.example.taskManager.service;
 
-import com.example.taskManager.common.constant.TaskEnum;
+import com.example.taskManager.common.constant.TaskStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.TaskRequest;
@@ -39,7 +39,7 @@ public class TaskService {
 
             task.setTitle(taskRequest.getTitle());
             task.setDescription(taskRequest.getDescription());
-            task.setStatus(TaskEnum.PENDING.name());
+            task.setStatus(TaskStatusEnum.PENDING.name());
             task.setAssignedTo(assignee);
             task.setCreatedBy(taskRequest.getCreatedById());
             task.setProject(project);

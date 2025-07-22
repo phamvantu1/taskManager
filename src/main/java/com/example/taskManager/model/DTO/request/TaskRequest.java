@@ -1,7 +1,7 @@
 package com.example.taskManager.model.DTO.request;
 
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class TaskRequest {
@@ -10,9 +10,9 @@ public class TaskRequest {
 
     private String description;
 
-    private LocalDateTime startTime;
+    private LocalDate startTime;
 
-    private LocalDateTime endTime;
+    private LocalDate endTime;
 
     private Long assigneeId;
 

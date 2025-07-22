@@ -3,7 +3,6 @@ package com.example.taskManager.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,9 +20,9 @@ public class Task {
 
     private String status;
 
-    private LocalDateTime startTime;
+    private LocalDate startTime;
 
-    private LocalDateTime endTime;
+    private LocalDate endTime;
 
     @ManyToOne
     @JoinColumn(name = "assigned_to")
