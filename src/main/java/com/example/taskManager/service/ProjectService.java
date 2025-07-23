@@ -5,11 +5,11 @@ import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.ProjectRequest;
 import com.example.taskManager.model.DTO.response.InfoProjectResponse;
+import com.example.taskManager.model.DTO.response.ProjectMemberView;
 import com.example.taskManager.model.entity.Project;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -104,4 +104,19 @@ public class ProjectService {
             throw new RuntimeException("Failed to retrieve project information: " + e.getMessage());
         }
     }
+
+    public Page<ProjectMemberView> getUserByProject(Long projectId, String textSearch, int page, int size) {
+        try {
+
+
+            Pageable pageable = PageRequest.of(page, size);
+            return projectRepository.findProjectMembersByProjectId(projectId, textSearch, pageable);
+
+        } catch(CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve project members: " + e.getMessage());
+        }
+    }
+
 }

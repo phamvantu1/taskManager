@@ -1,16 +1,24 @@
 package com.example.taskManager.model.DTO.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 public class DashboardTaskResponse {
 
-    private Long IN_PROGRESS;
+    @JsonProperty("IN_PROGRESS")
+    private Long inProgress;
 
-    private Long COMPLETED;
+    @JsonProperty("COMPLETED")
+    private Long completed;
 
-    private Long PENDING;
+    @JsonProperty("PENDING")
+    private Long pending;
 
-    private Long OVERDUE;
+    @JsonProperty("OVERDUE")
+    private Long overdue;
+
+    @JsonProperty("TOTAL")
+    private Long total;
 
 }

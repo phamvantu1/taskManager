@@ -118,10 +118,11 @@ public class TaskService {
                 }
             }
 
-            dashboardResponse.setIN_PROGRESS(inProgressCount);
-            dashboardResponse.setCOMPLETED(completedCount);
-            dashboardResponse.setPENDING(pendingCount);
-            dashboardResponse.setOVERDUE(overdueCount);
+            dashboardResponse.setInProgress(inProgressCount);
+            dashboardResponse.setCompleted(completedCount);
+            dashboardResponse.setPending(pendingCount);
+            dashboardResponse.setOverdue(overdueCount);
+            dashboardResponse.setTotal((long) tasks.size());
 
             return dashboardResponse;
 

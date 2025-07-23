@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+
+
+    @Query(value = "SELECT u.* FROM users u " +
+            "WHERE u.email = :email " +
+            " limit 1 "
+            , nativeQuery = true)
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);

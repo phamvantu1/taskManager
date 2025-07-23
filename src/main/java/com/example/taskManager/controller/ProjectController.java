@@ -32,4 +32,12 @@ public class ProjectController {
     public ResponseEntity<Response<?>> getInfoProject(@RequestParam(name = "projectId") Long projectId) {
         return ResponseEntity.ok(Response.success(projectService.getInfoProject(projectId)));
     }
+
+    @GetMapping("/get-user-by-project")
+    public ResponseEntity<Response<?>> getUserByProject(@RequestParam(name = "projectId", required = false) Long projectId,
+                                                        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                        @RequestParam(name = "size",required = false, defaultValue = "10") int size ,
+                                                        @RequestParam(name = "textSearch", required = false) String textSearch) {
+        return ResponseEntity.ok(Response.success(projectService.getUserByProject(projectId, textSearch, page, size)));
+    }
 }
