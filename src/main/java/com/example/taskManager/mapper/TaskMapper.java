@@ -3,6 +3,7 @@ package com.example.taskManager.mapper;
 import com.example.taskManager.model.DTO.response.TaskResponse;
 import com.example.taskManager.model.entity.Task;
 import com.example.taskManager.model.entity.User;
+import java.time.format.DateTimeFormatter;
 
 public class TaskMapper {
 
@@ -27,7 +28,9 @@ public class TaskMapper {
 
         response.setLever(task.getLever());
         response.setProcess(task.getProcess());
-        response.setCreatedAt(task.getCreatedAt());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        response.setCreatedAt(task.getCreatedAt().format(formatter));
 
         return response;
     }

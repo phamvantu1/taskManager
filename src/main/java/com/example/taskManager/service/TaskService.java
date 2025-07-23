@@ -134,5 +134,21 @@ public class TaskService {
         }
     }
 
+    public TaskResponse getTaskDetails(Long taskId) {
+        try {
+            var task =  taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            User createdByUser = userRepository.findById(task.getCreatedBy())
+                    .orElseThrow((() -> new CustomException(ResponseCode.USER_NOT_FOUND)));
+
+            return TaskMapper.toTaskResponse(task, createdByUser);
+        } catch(CustomException e){
+            throw e;
+        }catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
 }

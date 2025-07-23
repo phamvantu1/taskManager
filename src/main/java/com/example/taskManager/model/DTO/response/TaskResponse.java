@@ -33,6 +33,6 @@ public class TaskResponse {
 
     private Long process;
 
-    private LocalDateTime createdAt;
+    private String createdAt;
 
 }
