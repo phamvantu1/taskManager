@@ -162,12 +162,14 @@ public class TaskService {
             Task task = taskRepository.findById(taskId)
                     .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
 
-            User assignee = userRepository.findById(taskRequest.getAssigneeId())
-                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+            if (taskRequest.getAssigneeId() != null){
+                User assignee = userRepository.findById(taskRequest.getAssigneeId())
+                        .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+                task.setAssignedTo(assignee);
+            }
 
             task.setTitle(taskRequest.getTitle());
             task.setDescription(taskRequest.getDescription());
-            task.setAssignedTo(assignee);
             task.setStartTime(taskRequest.getStartTime());
             task.setEndTime(taskRequest.getEndTime());
             task.setStatus(taskRequest.getStatus() != null ? taskRequest.getStatus() : TaskStatusEnum.PENDING.name());

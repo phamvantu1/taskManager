@@ -18,8 +18,18 @@ public class TaskMapper {
 
         // Gán tên người được giao (nếu có)
         if (task.getAssignedTo() != null) {
-            response.setNameAssignedTo(task.getAssignedTo().getFirstName() + " " + task.getAssignedTo().getLastName());
+            String firstName = task.getAssignedTo().getFirstName() != null ? task.getAssignedTo().getFirstName() : "";
+            String lastName = task.getAssignedTo().getLastName() != null ? task.getAssignedTo().getLastName() : "";
+            String email = task.getAssignedTo().getEmail() != null ? task.getAssignedTo().getEmail() : "";
+
+            String fullName = (firstName + " " + lastName).trim();
+            if (!email.isEmpty()) {
+                fullName += " " + email;
+            }
+
+            response.setNameAssignedTo(fullName.trim());
         }
+
 
         // Gán tên người tạo (nếu truyền vào)
         if (createdByUser != null) {
