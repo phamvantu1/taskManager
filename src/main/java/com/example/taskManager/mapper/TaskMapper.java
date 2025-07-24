@@ -24,7 +24,7 @@ public class TaskMapper {
 
             String fullName = (firstName + " " + lastName).trim();
             if (!email.isEmpty()) {
-                fullName += " " + email;
+                fullName += " (" + email + ")";
             }
 
             response.setNameAssignedTo(fullName.trim());

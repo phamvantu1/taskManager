@@ -42,4 +42,9 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "department_id")
+    private Department department;
+
 }
