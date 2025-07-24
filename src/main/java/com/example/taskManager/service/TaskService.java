@@ -1,5 +1,6 @@
 package com.example.taskManager.service;
 
+import com.example.taskManager.common.constant.TaskLeverEnum;
 import com.example.taskManager.common.constant.TaskStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,23 +44,24 @@ public class TaskService {
             User creator = userRepository.findById(taskRequest.getCreatedById())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
-            Project project = projectRepository.findById(taskRequest.getProjectId())
-                    .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+            if (taskRequest.getProjectId()!= null){
+                Project project = projectRepository.findById(taskRequest.getProjectId())
+                        .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+                task.setProject(project);
+            }
 
             task.setTitle(taskRequest.getTitle());
             task.setDescription(taskRequest.getDescription());
             task.setStatus(TaskStatusEnum.PENDING.name());
             task.setAssignedTo(assignee);
             task.setCreatedBy(taskRequest.getCreatedById());
-            task.setProject(project);
             task.setStartTime(taskRequest.getStartTime());
             task.setEndTime(taskRequest.getEndTime());
             task.setLever(taskRequest.getLever());
             task.setProcess(0L);
             
             taskRepository.save(task);
-            
-            
+
             return Map.of("message", "create task successfully");
         }catch(CustomException e){
             throw e;
@@ -93,8 +96,11 @@ public class TaskService {
     public DashboardTaskResponse getDashboardTasksByProject(Long projectId) {
         try {
 
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+            if(projectId != null){
+                Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+            }
+
 
             long inProgressCount = 0;
             long completedCount = 0;
@@ -149,6 +155,37 @@ public class TaskService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    public Map<String, String> updateTask(Long taskId, TaskRequest taskRequest) {
+        try{
+
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            User assignee = userRepository.findById(taskRequest.getAssigneeId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            task.setTitle(taskRequest.getTitle());
+            task.setDescription(taskRequest.getDescription());
+            task.setAssignedTo(assignee);
+            task.setStartTime(taskRequest.getStartTime());
+            task.setEndTime(taskRequest.getEndTime());
+            task.setStatus(taskRequest.getStatus() != null ? taskRequest.getStatus() : TaskStatusEnum.PENDING.name());
+            task.setLever(taskRequest.getLever());
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "update task successfully");
+
+        } catch(CustomException e){
+            throw e;
+        }catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
 
 
 }

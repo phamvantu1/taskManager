@@ -40,4 +40,7 @@ public class Task {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @CreationTimestamp
+    private LocalDateTime updatedAt;
 }

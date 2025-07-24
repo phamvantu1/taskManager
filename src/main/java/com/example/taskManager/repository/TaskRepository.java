@@ -26,6 +26,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             Pageable pageable
     );
 
-    List<Task> findAllByProjectId(Long projectId);
+
+    @Query(value = "select t.* from tasks t " +
+            "join projects p on t.project_id = p.id " +
+            "where :projectId is null or p.id = :projectId " ,
+            nativeQuery = true)
+    List<Task> findAllByProjectId(@Param("projectId") Long projectId);
 
 }

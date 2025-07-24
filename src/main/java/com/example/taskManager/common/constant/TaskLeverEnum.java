@@ -1,9 +1,9 @@
 package com.example.taskManager.common.constant;
 
 public enum TaskLeverEnum {
-    EASY(1),
-    MEDIUM(2),
-    HARD(3);
+    EASY(0),
+    MEDIUM(1),
+    HARD(2);
 
     private final int level;
 
@@ -12,6 +12,15 @@ public enum TaskLeverEnum {
     }
     public int getLevel() {
         return level;
+    }
+
+    public static TaskLeverEnum fromLevel(int level) {
+        for (TaskLeverEnum lever : TaskLeverEnum.values()) {
+            if (lever.getLevel() == level) {
+                return lever;
+            }
+        }
+        throw new IllegalArgumentException("Invalid task lever level: " + level);
     }
 
 }

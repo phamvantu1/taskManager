@@ -1,8 +1,25 @@
 package com.example.taskManager.common.constant;
 
 public enum TaskStatusEnum {
-    PENDING,
-    IN_PROGRESS,
-    COMPLETED,
-    OVERDUE,
+    PENDING(0),
+    IN_PROGRESS(1),
+    COMPLETED(2),
+    OVERDUE(3);
+
+    private final int level;
+    TaskStatusEnum(int level) {
+        this.level = level;
+    }
+    public int getLevel() {
+        return level;
+    }
+
+    public static TaskStatusEnum fromLevel(int level) {
+        for (TaskStatusEnum status : TaskStatusEnum.values()) {
+            if (status.getLevel() == level) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Invalid task status level: " + level);
+    }
 }

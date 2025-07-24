@@ -22,4 +22,6 @@ public class TaskRequest {
 
     private Long lever;
 
+    private String status;
+
 }
