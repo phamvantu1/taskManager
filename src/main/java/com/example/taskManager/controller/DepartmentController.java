@@ -21,4 +21,12 @@ public class DepartmentController {
         return ResponseEntity.ok(Response.success(departmentService.createDepartment(departmentRequest, authentication)));
     }
 
+    @GetMapping("/get-all")
+    public ResponseEntity<Response<?>> getAllDepartments(Authentication authentication,
+                                                         @RequestParam(name = "page",required = false, defaultValue = "0") int page,
+                                                         @RequestParam(name = "size",required = false, defaultValue = "10") int size,
+                                                         @RequestParam(name = "textSearch", required = false) String textSearch) {
+        return ResponseEntity.ok(Response.success(departmentService.getAllDepartments(authentication, page, size, textSearch)));
+    }
+
 }

@@ -42,4 +42,10 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL)
     private List<Task> assignedTasks;
+
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName + " (" + this.email + ")";
+    }
+
 }
