@@ -35,6 +35,7 @@ public enum ResponseCode {
     PROJECT_NOT_FOUND("ERR_404", "Không tìm thấy dự án", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("ERR_404", "Không tìm thấy công việc", HttpStatus.NOT_FOUND),
 
+    DEPARTMENT_NOT_FOUND("ERR_404", "Không tìm thấy phòng ban", HttpStatus.NOT_FOUND),
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);
 

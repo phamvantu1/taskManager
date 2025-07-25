@@ -29,4 +29,13 @@ public class DepartmentController {
         return ResponseEntity.ok(Response.success(departmentService.getAllDepartments(authentication, page, size, textSearch)));
     }
 
+    @GetMapping("/get-common/{departmentId}")
+    public ResponseEntity<Response<?>> getCommonDepartment(@PathVariable Long departmentId,
+                                                           Authentication authentication) {
+        return ResponseEntity.ok(Response.success(departmentService.getCommonDepartment(departmentId, authentication)));
+    }
+
+    @GetMapping("/get-dashboard/{departmentId}")
+
+
 }

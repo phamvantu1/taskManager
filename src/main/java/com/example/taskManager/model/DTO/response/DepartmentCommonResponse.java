@@ -3,6 +3,8 @@ package com.example.taskManager.model.DTO.response;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class DepartmentCommonResponse {
 
@@ -16,9 +18,9 @@ public class DepartmentCommonResponse {
 
     private String createdByName;
 
-    private String createdAt;
+    private LocalDateTime createdAt;
 
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
     private Long numberOfUsers;
 
