@@ -57,6 +57,8 @@ public class AuthService {
             user.setActive(true);
             user.setFirstName(registerRequest.getFirstName());
             user.setLastName(registerRequest.getLastName());
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
 
             // Lưu người dùng vào cơ sở dữ liệu
             userRepository.save(user);

@@ -51,5 +51,7 @@ public class Department {
 
     private LocalDateTime updatedAt;
 
+    private String status; // ACTIVE, INACTIVE, ARCHIVED
+
 
 }
