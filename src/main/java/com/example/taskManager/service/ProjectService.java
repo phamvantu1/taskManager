@@ -6,8 +6,10 @@ import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.ProjectRequest;
 import com.example.taskManager.model.DTO.response.InfoProjectResponse;
 import com.example.taskManager.model.DTO.response.ProjectMemberView;
+import com.example.taskManager.model.entity.Department;
 import com.example.taskManager.model.entity.Project;
 import com.example.taskManager.model.entity.User;
+import com.example.taskManager.repository.DepartmentRepository;
 import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +28,20 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
     @Transactional
     public Map<String, String> createProject(ProjectRequest projectRequest) {
         try{
 
             Project project = new Project();
+
+            if(projectRequest.getDepartmentId() != null){
+                Department department = departmentRepository.findById(projectRequest.getDepartmentId())
+                        .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+                project.setDepartment(department);
+            }
+
             project.setName(projectRequest.getName());
             project.setDescription(projectRequest.getDescription());
             project.setEndTime(projectRequest.getEndTime());
@@ -54,11 +64,11 @@ public class ProjectService {
         }
     }
 
-    public Page<Project> getAllProjects(int page, int size) {
+    public Page<Project> getAllProjects(int page, int size, Long departmentId) {
         try {
 
             Pageable pageable = (Pageable) PageRequest.of(page, size);
-            return  projectRepository.findAll(pageable);
+            return  projectRepository.findAllProject(pageable, departmentId);
 
         } catch(CustomException e) {
             throw e;

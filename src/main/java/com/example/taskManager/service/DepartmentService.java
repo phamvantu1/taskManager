@@ -8,8 +8,12 @@ import com.example.taskManager.mapper.DepartmentMapper;
 import com.example.taskManager.model.DTO.request.DepartmentRequest;
 import com.example.taskManager.model.DTO.response.*;
 import com.example.taskManager.model.entity.Department;
+import com.example.taskManager.model.entity.DepartmentUser;
+import com.example.taskManager.model.entity.Project;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.DepartmentRepository;
+import com.example.taskManager.repository.DepartmentUserRepository;
+import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,8 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
     private final DepartmentMapper departmentMapper;
-    private final ResponseWrapperAdvice responseWrapperAdvice;
+    private final DepartmentUserRepository departmentUserRepository;
+    private final ProjectRepository projectRepository;
 
     public Map<String, String> createDepartment(DepartmentRequest departmentRequest,
                                                 Authentication authentication) {
@@ -89,6 +91,8 @@ public class DepartmentService {
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
 
+            List<DepartmentUser> departmentUser = departmentUserRepository.findByDepartmentId(departmentId);
+
             DepartmentCommonResponse response = new DepartmentCommonResponse();
             response.setId(department.getId());
             response.setName(department.getName());
@@ -98,7 +102,7 @@ public class DepartmentService {
             response.setCreatedAt(department.getCreatedAt());
             response.setUpdatedAt(department.getUpdatedAt());
             response.setNumberOfProjects((long) department.getProject().size());
-            response.setNumberOfUsers((long) department.getUsers().size());
+            response.setNumberOfUsers((long) departmentUser.size());
 
             return response;
 
@@ -118,20 +122,36 @@ public class DepartmentService {
 
             DashboardDepartment dashboard = new DashboardDepartment();
 
-            List<NewParticipient> newUsers = department.getUsers().stream()
-                    .filter(newUser -> newUser.getCreatedAt().isBefore(LocalDateTime.now().minusDays(30)))
+            // tai hien dong nay bug
+//            var bug = department.getDepartmentUsers();
+//            bug.stream()
+//                    .filter(departmentUser -> departmentUser.getJoinedAt() != null)
+//                    .forEach(departmentUser -> {
+//                        if (departmentUser.getJoinedAt().isAfter(LocalDateTime.now().minusDays(30))) {
+//                        }
+//                    });
+//            log.info("hahaha {}", bug);
+
+            List<DepartmentUser> departmentUsers = departmentUserRepository.findByDepartmentId(departmentId);
+
+            List<NewParticipient> newUsers = departmentUsers.stream()
+                    .filter(newUser -> newUser.getJoinedAt() != null
+                            && newUser.getJoinedAt().isAfter(LocalDateTime.now().minusDays(30)))
+                    .sorted(Comparator.comparing(DepartmentUser::getJoinedAt).reversed())
                     .map(newUser -> {
                         NewParticipient np = new NewParticipient();
-                        np.setId(newUser.getId());
-                        np.setName(departmentMapper.mapFullName(newUser));
-                        np.setEmail(newUser.getEmail());
+                        np.setId(newUser.getUser().getId());
+                        np.setName(departmentMapper.mapFullName(newUser.getUser()));
+                        np.setEmail(newUser.getUser().getEmail());
                         return np;
                     })
                     .toList();
 
             dashboard.setListNewUsers(new HashSet<>(newUsers));
 
-            List<ProjectInProgress> projectInProgresses = department.getProject().stream()
+            List<Project> listProject = projectRepository.findByDepartmentId(departmentId);
+
+            List<ProjectInProgress> projectInProgresses = listProject.stream()
                     .filter(project -> project.getStatus().equals("PROCESSING"))
                     .map(project -> {
                         ProjectInProgress pi = new ProjectInProgress();
@@ -143,12 +163,13 @@ public class DepartmentService {
 
             dashboard.setListProjectsInProgress(new HashSet<>(projectInProgresses));
 
-            List<ProjectCompleted> projectCompleted = department.getProject().stream()
+            List<ProjectCompleted> projectCompleted = listProject.stream()
                     .filter(project -> project.getStatus().equals("COMPLETED"))
                     .map(project -> {
                         ProjectCompleted pc = new ProjectCompleted();
                         pc.setId(project.getId());
                         pc.setName(project.getName());
+                        pc.setCompletedDate(project.getFinishTime());
                         return pc;
                     })
                     .toList();
@@ -164,11 +185,16 @@ public class DepartmentService {
         }
     }
 
+    @Transactional
     public Map<String, String> deleteDepartment(Long departmentId) {
         try {
 
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+            if(department.getStatus().equals(DepartmentStatus.INACTIVE.name())) {
+                throw new CustomException(ResponseCode.DEPARTMENT_ALREADY_DELETED);
+            }
 
             department.setStatus(DepartmentStatus.INACTIVE.name());
 
@@ -183,6 +209,8 @@ public class DepartmentService {
         }
     }
 
+
+    @Transactional
     public Map<String, String> updateDepartment(Long departmentId, DepartmentRequest departmentRequest,
                                                 Authentication authentication) {
         try {
@@ -219,6 +247,7 @@ public class DepartmentService {
         }
     }
 
+    @Transactional
     public Map<String, String> addUserToDepartment(Long departmentId, Long userId, Authentication authentication) {
         try {
 
@@ -232,13 +261,23 @@ public class DepartmentService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
-            if (department.getUsers().contains(user)) {
+
+            boolean checkUserExistInDepartment = departmentUserRepository.existsByDepartmentIdAndUserId(departmentId, userId);
+            if (checkUserExistInDepartment) {
                 throw new CustomException(ResponseCode.USER_ALREADY_IN_DEPARTMENT);
             }
 
-            department.getUsers().add(user);
-            department.setUpdatedAt(LocalDateTime.now());
+            DepartmentUser departmentUser = new DepartmentUser();
+            departmentUser.setDepartment(department);
+            departmentUser.setUser(user);
+            departmentUser.setRole("MEMBER"); // Mặc định là MEMBER, có thể thay đổi sau
+            departmentUser.setJoinedAt(LocalDateTime.now());
 
+            // Lưu thông tin vào bảng trung gian
+            departmentUserRepository.save(departmentUser);
+
+            // Cập nhật thời gian update của department
+            department.setUpdatedAt(LocalDateTime.now());
             departmentRepository.save(department);
 
             return Map.of("message", "User added to department successfully");

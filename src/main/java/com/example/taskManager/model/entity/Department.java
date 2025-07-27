@@ -30,13 +30,9 @@ public class Department {
     @JoinColumn(name = "leader_id")
     private User leader;
 
-    @ManyToMany
-    @JoinTable(
-        name = "department_users",
-        joinColumns = @JoinColumn(name = "department_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> users;
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<DepartmentUser> departmentUsers;
 
     @OneToMany
     @JsonIgnore

@@ -47,4 +47,6 @@ public class Project {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    private LocalDate finishTime;
+
 }

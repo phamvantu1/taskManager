@@ -36,6 +36,7 @@ public enum ResponseCode {
     TASK_NOT_FOUND("ERR_404", "Không tìm thấy công việc", HttpStatus.NOT_FOUND),
 
     DEPARTMENT_NOT_FOUND("ERR_404", "Không tìm thấy phòng ban", HttpStatus.NOT_FOUND),
+    DEPARTMENT_ALREADY_DELETED("ERR_409", "Phòng ban đã bị xóa", HttpStatus.CONFLICT),
     USER_ALREADY_IN_DEPARTMENT("ERR_409", "Người dùng đã có trong phòng ban", HttpStatus.CONFLICT),
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);

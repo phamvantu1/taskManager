@@ -18,5 +18,7 @@ public class ProjectRequest {
 
     private String type;
 
+    private Long departmentId;
+
 
 }

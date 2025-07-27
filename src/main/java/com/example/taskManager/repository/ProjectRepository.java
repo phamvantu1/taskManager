@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findAll(Pageable pageable);
 
@@ -32,6 +34,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             @Param("textSearch") String textSearch,
             Pageable pageable
     );
+
+    @Query(value  = "select  p.* from projects p " +
+            "where :departmentId is null or p.department_id = :departmentId "
+    , nativeQuery = true)
+    Page<Project> findAllProject(Pageable pageable,
+                                 @Param("departmentId") Long departmentId);
+
+    List<Project> findByDepartmentId(Long departmentId);
 
 
 }

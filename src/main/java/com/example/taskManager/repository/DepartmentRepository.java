@@ -11,7 +11,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
 
     @Query(value = "select * from departments d " +
-            "where :textSearch is null OR LOWER(d.name) LIKE CONCAT('%', LOWER(:textSearch), '%') " +
+            "where (:textSearch is null OR LOWER(d.name) LIKE CONCAT('%', LOWER(:textSearch), '%') ) " +
             " and d.status = 'ACTIVE' "
     , nativeQuery = true)
     Page<Department> findAllDepartment(@RequestParam("textSearch") String textSearch,

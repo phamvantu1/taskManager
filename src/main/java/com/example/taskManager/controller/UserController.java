@@ -40,7 +40,15 @@ public class UserController {
 
     @GetMapping("/get-all-users")
     public ResponseEntity<Response<?>> getAllUsers(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                              @RequestParam(name = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(Response.success(userService.getAllUsers(page, size)));
+                                                   @RequestParam(name = "size", defaultValue = "10") int size,
+                                                   @RequestParam(name = "departmentId", required = false) Long departmentId) {
+        return ResponseEntity.ok(Response.success(userService.getAllUsers(page, size, departmentId)));
+    }
+
+    @GetMapping("/get-user-dashboard")
+    public ResponseEntity<Response<?>> getUserDashboard(Authentication authentication,
+                                                        @RequestParam(name = "page", defaultValue = "0") int page,
+                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(Response.success(userService.getUserDashboard(authentication, page, size)));
     }
 }
