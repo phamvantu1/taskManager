@@ -5,6 +5,7 @@ import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.ChangePasswordRequest;
 import com.example.taskManager.model.DTO.request.UserInforRequest;
 import com.example.taskManager.model.DTO.response.UserDashBoard;
+import com.example.taskManager.model.DTO.response.UserDashboardResponse;
 import com.example.taskManager.model.DTO.response.UserDetailDashBoard;
 import com.example.taskManager.model.entity.Department;
 import com.example.taskManager.model.entity.User;
@@ -115,24 +116,20 @@ public class UserService {
 
 
     @Transactional
-    public UserDashBoard getUserDashboard(Authentication authentication, int page, int size) {
+    public UserDashboardResponse getUserDashboard(Authentication authentication, int page, int size) {
         try {
-            // Các nhóm đặc biệt không phân trang
             List<User> admins = userRepository.findAdmin();
             List<User> leaders = userRepository.findLeaderDepartment();
             List<User> projectManagers = userRepository.findPM();
 
-            // Lấy danh sách ID đã có vai trò đặc biệt
             Set<Long> specialIds = Stream.of(admins, leaders, projectManagers)
                     .flatMap(List::stream)
                     .map(User::getId)
                     .collect(Collectors.toSet());
 
-            // Phân trang cho thành viên (không thuộc các vai trò trên)
             Pageable pageable = PageRequest.of(page, size);
             Page<User> memberPage = userRepository.findAllExcludeIds(specialIds, pageable);
 
-            // Map từng nhóm sang DTO
             Set<UserDetailDashBoard> adminSet = admins.stream()
                     .map(u -> new UserDetailDashBoard(u.getId(), u.getFullName(), null))
                     .collect(Collectors.toSet());
@@ -153,12 +150,18 @@ public class UserService {
             dashboard.setAdmins(adminSet);
             dashboard.setLeaderDepartments(leaderSet);
             dashboard.setProjectManagers(pmSet);
-            dashboard.setMembers(memberSet); // phân trang
+            dashboard.setMembers(memberSet); // phần cần phân trang
 
-            return dashboard;
+            return new UserDashboardResponse(
+                    dashboard,
+                    memberPage.getTotalElements(),
+                    memberPage.getTotalPages(),
+                    memberPage.getNumber()
+            );
         } catch (Exception e) {
             throw new RuntimeException("Failed to get dashboard", e);
         }
     }
+
 
 }
