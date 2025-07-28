@@ -45,8 +45,10 @@ public class DashBoardController {
     }
 
     @GetMapping("/get-dashboard-userTask-overview")
-    public ResponseEntity<Response<?>> getDashboardTaskOverview(@RequestParam(name = "departmentId", required = false) Long departmentId) {
-        return ResponseEntity.ok(Response.success(dashBoardService.getDashboardTaskOverview(departmentId)));
+    public ResponseEntity<Response<?>> getDashboardTaskOverview(@RequestParam(name = "departmentId", required = false) Long departmentId,
+                                                                @RequestParam(name = "startTime", required = false) String startTime,
+                                                                @RequestParam(name = "endTime", required = false) String endTime) {
+        return ResponseEntity.ok(Response.success(dashBoardService.getDashboardTaskOverview(departmentId, startTime, endTime)));
     }
 
 }

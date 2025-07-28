@@ -110,12 +110,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
             LEFT JOIN projects p ON t.project_id = p.id
             WHERE u.is_active = 'true'
               AND (:departmentId IS NULL OR p.department_id = :departmentId)
+              AND (:startTime IS NULL OR t.start_time >= CAST(:startTime AS TIMESTAMP))
+              AND (:endTime IS NULL OR t.end_time <= CAST(:endTime AS TIMESTAMP))
             GROUP BY u.id, u.first_name, u.last_name, u.email
             ORDER BY progress DESC
             """,
             countQuery = "SELECT COUNT(*) FROM users",
             nativeQuery = true)
-    List<Object[]> getDashboardUsersOverView(@Param("departmentId") Long departmentId);
+    List<Object[]> getDashboardUsersOverView(@Param("departmentId") Long departmentId,
+                                             @Param("startTime") String startTime,
+                                             @Param("endTime") String endTime);
 
 
 }

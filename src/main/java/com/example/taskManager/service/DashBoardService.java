@@ -163,10 +163,17 @@ public class DashBoardService {
         }
     }
 
-    public DashBoardTaskOverView  getDashboardTaskOverview(Long departmentId) {
+    public DashBoardTaskOverView  getDashboardTaskOverview(Long departmentId, String startTime, String endTime) {
         try{
 
-            List<Object[]> users = userRepository.getDashboardUsersOverView(departmentId);
+            if (!StringUtils.hasText(startTime)) {
+                startTime = null;
+            }
+            if (!StringUtils.hasText(endTime)) {
+                endTime = null;
+            }
+
+            List<Object[]> users = userRepository.getDashboardUsersOverView(departmentId, startTime, endTime);
 
             double totalProgress = 0.0;
             int count = 0;
