@@ -33,4 +33,40 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             nativeQuery = true)
     List<Task> findAllByProjectId(@Param("projectId") Long projectId);
 
+
+    @Query(value = "SELECT  count(distinct t.id) from tasks t " +
+            "join projects p on p.id = t.project_id " +
+            " join departments d on d.id = p.department_id " +
+            " where :departmentId is null or d.id = :departmentId "
+    , nativeQuery = true)
+    Long totalAllTasks(Long departmentId);
+
+
+    @Query(value = "SELECT  count(distinct t.id) from tasks t " +
+            "join projects p on p.id = t.project_id " +
+            " join departments d on d.id = p.department_id " +
+            " where t.status = 'COMPLETED' and (:departmentId is null or d.id = :departmentId) "
+    , nativeQuery = true)
+    Long totalTaskCompleted(Long departmentId);
+
+    @Query(value = """
+            SELECT
+                COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END) AS completed,
+                COUNT(CASE WHEN t.status = 'IN_PROGRESS' THEN 1 END) AS inProgress,
+                COUNT(CASE WHEN t.status = 'PENDING' THEN 1 END) AS pending,
+                COUNT(CASE WHEN t.status = 'OVERDUE' THEN 1 END) AS overdue
+            FROM tasks t 
+            left JOIN projects p ON t.project_id = p.id
+            left JOIN departments d on d.id = p.department_id            
+            WHERE (:departmentId IS NULL OR p.department_id = :departmentId)
+              AND (:projectId IS NULL OR p.id = :projectId)
+              AND (:startTime IS NULL OR p.start_time >= CAST(:startTime AS TIMESTAMP))
+              AND (:endTime IS NULL OR p.start_time <= CAST(:endTime AS TIMESTAMP))
+            """, nativeQuery = true)
+    Object getTaskDashboardData(@Param("departmentId") Long departmentId,
+                                @Param("projectId") Long projectId,
+                                @Param("startTime") String startTime,
+                                @Param("endTime") String endTime);
+
+
 }

@@ -59,4 +59,63 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.id NOT IN :excludedIds")
     Page<User> findAllExcludeIds(@Param("excludedIds") Set<Long> excludedIds, Pageable pageable);
 
+
+    @Query(value = "SELECT count(DISTINCT u.id) FROM users u " +
+            "LEFT JOIN department_users du ON u.id = du.user_id " +
+            "WHERE u.is_active = 'true' " +
+            "and (:departmentId IS NULL OR du.department_id = :departmentId) "
+            , nativeQuery = true)
+    Long totalAllNumber(@Param("departmentId") Long departmentId);
+
+
+    @Query(value = "SELECT COUNT(DISTINCT u.id) FROM users u " +
+            "LEFT JOIN department_users du ON u.id = du.user_id " +
+            "WHERE u.is_active = 'true' " +
+            "AND (:departmentId IS NULL OR du.department_id = :departmentId) " +
+            "AND u.created_at >= CURRENT_DATE - INTERVAL '30 days'"
+            , nativeQuery = true)
+    Long totalNewUsers(@Param("departmentId") Long departmentId);
+
+
+    @Query(value = """
+            SELECT 
+              CONCAT(u.first_name, ' ', u.last_name, ' (', u.email, ')') AS full_name,
+              COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END)::decimal 
+                / NULLIF(COUNT(t.id), 0) AS progress
+            FROM users u
+            LEFT JOIN tasks t ON u.id = t.assigned_to
+            LEFT JOIN projects p ON t.project_id = p.id
+            WHERE u.is_active = 'true'
+              AND (:departmentId IS NULL OR p.department_id = :departmentId)
+              AND (:startTime IS NULL OR t.start_time >= CAST(:startTime AS TIMESTAMP))
+              AND (:endTime IS NULL OR t.end_time <= CAST(:endTime AS TIMESTAMP))
+            GROUP BY u.id, u.first_name, u.last_name, u.email
+            ORDER BY progress DESC
+            """,
+            countQuery = "SELECT COUNT(*) FROM users",
+            nativeQuery = true)
+    Page<Object[]> getDashboardUsers(@Param("departmentId") Long departmentId,
+                                     @Param("startTime") String startTime,
+                                     @Param("endTime") String endTime,
+                                     Pageable pageable);
+
+
+    @Query(value = """
+            SELECT 
+              CONCAT(u.first_name, ' ', u.last_name, ' (', u.email, ')') AS full_name,
+              COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END)::decimal 
+                / NULLIF(COUNT(t.id), 0) AS progress
+            FROM users u
+            LEFT JOIN tasks t ON u.id = t.assigned_to
+            LEFT JOIN projects p ON t.project_id = p.id
+            WHERE u.is_active = 'true'
+              AND (:departmentId IS NULL OR p.department_id = :departmentId)
+            GROUP BY u.id, u.first_name, u.last_name, u.email
+            ORDER BY progress DESC
+            """,
+            countQuery = "SELECT COUNT(*) FROM users",
+            nativeQuery = true)
+    List<Object[]> getDashboardUsersOverView(@Param("departmentId") Long departmentId);
+
+
 }

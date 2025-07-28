@@ -44,4 +44,33 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByDepartmentId(Long departmentId);
 
 
+    @Query(value = " SELECT  count(distinct p.id) from projects p " +
+            "where :departmentId is null or p.department_id = :departmentId"
+            , nativeQuery = true)
+    Long totalAllProjects(Long departmentId);
+
+
+    @Query(value = " SELECT  count(distinct p.id) from projects p " +
+            "where p.status = 'COMPLETED' and (:departmentId is null or p.department_id = :departmentId)"
+            , nativeQuery = true)
+    Long totalProjectFinished(Long departmentId);
+
+    @Query(value = """
+    SELECT
+        COUNT(CASE WHEN status = 'COMPLETED' THEN 1 END) AS completed,
+        COUNT(CASE WHEN status = 'PROCESSING' THEN 1 END) AS inProgress,
+        COUNT(CASE WHEN status = 'PENDING' THEN 1 END) AS pending,
+        COUNT(CASE WHEN status = 'OVERDUE' THEN 1 END) AS overdue
+    FROM projects p
+    WHERE (:departmentId IS NULL OR p.department_id = :departmentId)
+      AND (:startTime IS NULL OR p.start_time >= CAST(:startTime AS TIMESTAMP))
+      AND (:endTime IS NULL OR p.start_time <= CAST(:endTime AS TIMESTAMP))
+    """, nativeQuery = true)
+    Object getProjectDashboardData(@Param("departmentId") Long departmentId,
+                                     @Param("startTime") String startTime,
+                                     @Param("endTime") String endTime);
+
+
+
+
 }
