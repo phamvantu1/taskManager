@@ -15,7 +15,7 @@ public class DepartmentUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Dùng Long ID đơn giản thay vì composite key
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "department_id")

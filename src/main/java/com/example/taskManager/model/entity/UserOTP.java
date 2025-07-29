@@ -25,7 +25,7 @@ public class UserOTP {
     private LocalDateTime expired_at;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private boolean is_used;

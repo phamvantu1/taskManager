@@ -32,7 +32,7 @@ public class Project {
 
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     @CreationTimestamp
@@ -48,5 +48,7 @@ public class Project {
     private Department department;
 
     private LocalDate finishTime;
+
+    private LocalDateTime updateTime;
 
 }

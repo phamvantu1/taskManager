@@ -62,11 +62,11 @@ public class TaskService {
             
             taskRepository.save(task);
 
-            return Map.of("message", "create task successfully");
+            return Map.of("message", "Tạo mới công việc thành công");
         }catch(CustomException e){
             throw e;
         }catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("Có lỗi khi tạo mới công việc " + e.getMessage());
         }
     }
 

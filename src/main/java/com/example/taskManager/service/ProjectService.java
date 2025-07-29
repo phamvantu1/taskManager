@@ -13,17 +13,21 @@ import com.example.taskManager.repository.DepartmentRepository;
 import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -64,11 +68,21 @@ public class ProjectService {
         }
     }
 
-    public Page<Project> getAllProjects(int page, int size, Long departmentId) {
+    public Page<Project> getAllProjects(int page, int size, Long departmentId,String textSearch, String status, String startTime ,String endTime ) {
         try {
 
-            Pageable pageable = (Pageable) PageRequest.of(page, size);
-            return  projectRepository.findAllProject(pageable, departmentId);
+            if (!StringUtils.hasText(startTime)) {
+                startTime = null;
+            }
+            if (!StringUtils.hasText(endTime)) {
+                endTime = null;
+            }
+
+            textSearch = (textSearch != null && textSearch.trim().isEmpty()) ? null : textSearch;
+            status = (status != null && status.trim().isEmpty()) ? null : status;
+
+            Pageable pageable =  PageRequest.of(page, size);
+            return  projectRepository.findAllProject(pageable, departmentId, textSearch, status,startTime , endTime);
 
         } catch(CustomException e) {
             throw e;
@@ -82,6 +96,9 @@ public class ProjectService {
         try {
             Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+
+            Department department = departmentRepository.findById(project.getDepartment().getId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
 
             List<User> listMember = userRepository.listUserInProject(projectId);
 
@@ -105,6 +122,7 @@ public class ProjectService {
             response.setStatus(project.getStatus());
             response.setStartDate(project.getStartTime());
             response.setEndDate(project.getEndTime());
+            response.setDepartment(department.getName());
 
             return response;
 
@@ -126,6 +144,37 @@ public class ProjectService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to retrieve project members: " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> updateProject(ProjectRequest projectRequest){
+        try {
+
+            Project project = projectRepository.findById(projectRequest.getId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+
+            User owner = userRepository.findById(projectRequest.getOwnerId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Department department = departmentRepository.findById(projectRequest.getDepartmentId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+            project.setName(projectRequest.getName());
+            project.setDescription(projectRequest.getDescription());
+            project.setStartTime(projectRequest.getStartTime());
+            project.setEndTime(projectRequest.getEndTime());
+            project.setUpdateTime(LocalDateTime.now());
+            project.setOwner(owner);
+            project.setType(projectRequest.getType());
+            project.setDepartment(department);
+
+            projectRepository.save(project);
+
+            return Map.of("message", "Cập nhập dự án thất bại");
+        } catch(CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update project members: " + e.getMessage());
         }
     }
 

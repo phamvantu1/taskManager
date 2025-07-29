@@ -36,10 +36,20 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     );
 
     @Query(value  = "select  p.* from projects p " +
-            "where :departmentId is null or p.department_id = :departmentId "
+            "where (:departmentId is null or p.department_id = :departmentId ) " +
+            "and (:textSearch is null or p.name ILIKE CONCAT('%', LOWER(:textSearch), '%')  ) " +
+            "and (:status is null or :status = p.status ) " +
+            " AND (:startTime IS NULL OR p.start_time >= CAST(:startTime AS TIMESTAMP)) " +
+            " AND (:endTime IS NULL OR p.end_time <= CAST(:endTime AS TIMESTAMP)) "
     , nativeQuery = true)
     Page<Project> findAllProject(Pageable pageable,
-                                 @Param("departmentId") Long departmentId);
+                                 @Param("departmentId") Long departmentId,
+                                 @Param("textSearch") String textSearch,
+                                 @Param("status") String status,
+                                 @Param("startTime") String startTime,
+                                 @Param("endTime") String endTime);
+
+
 
     List<Project> findByDepartmentId(Long departmentId);
 

@@ -122,16 +122,6 @@ public class DepartmentService {
 
             DashboardDepartment dashboard = new DashboardDepartment();
 
-            // tai hien dong nay bug
-//            var bug = department.getDepartmentUsers();
-//            bug.stream()
-//                    .filter(departmentUser -> departmentUser.getJoinedAt() != null)
-//                    .forEach(departmentUser -> {
-//                        if (departmentUser.getJoinedAt().isAfter(LocalDateTime.now().minusDays(30))) {
-//                        }
-//                    });
-//            log.info("hahaha {}", bug);
-
             List<DepartmentUser> departmentUsers = departmentUserRepository.findByDepartmentId(departmentId);
 
             List<NewParticipient> newUsers = departmentUsers.stream()
