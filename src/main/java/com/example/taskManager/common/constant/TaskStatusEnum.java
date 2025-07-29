@@ -2,7 +2,7 @@ package com.example.taskManager.common.constant;
 
 public enum TaskStatusEnum {
     PENDING(0),
-    IN_PROGRESS(1),
+    PROCESSING(1),
     COMPLETED(2),
     OVERDUE(3);
 

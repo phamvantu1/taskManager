@@ -49,8 +49,14 @@ public class ProjectController {
         return ResponseEntity.ok(Response.success(projectService.getUserByProject(projectId, textSearch, page, size)));
     }
 
-    @PutMapping("/update-project")
-    public ResponseEntity<Response<?>> updateProject(@RequestBody ProjectRequest projectRequest) {
-        return ResponseEntity.ok(Response.success((projectService.updateProject(projectRequest))));
+    @PutMapping("/update-project/{projectId}")
+    public ResponseEntity<Response<?>> updateProject(@PathVariable(name = "projectId") Long projectId,
+                                                     @RequestBody ProjectRequest projectRequest) {
+        return ResponseEntity.ok(Response.success((projectService.updateProject(projectId,projectRequest))));
+    }
+
+    @DeleteMapping("/delete-project/{projectId}")
+    public ResponseEntity<Response<?>> deleteProject(@PathVariable(name = "projectId") Long projectId) {
+        return ResponseEntity.ok(Response.success(projectService.deleteProject(projectId)));
     }
 }

@@ -92,7 +92,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             GROUP BY u.id, u.first_name, u.last_name, u.email
             ORDER BY progress DESC
             """,
-            countQuery = "SELECT COUNT(*) FROM users",
             nativeQuery = true)
     Page<Object[]> getDashboardUsers(@Param("departmentId") Long departmentId,
                                      @Param("startTime") String startTime,
@@ -115,7 +114,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             GROUP BY u.id, u.first_name, u.last_name, u.email
             ORDER BY progress DESC
             """,
-            countQuery = "SELECT COUNT(*) FROM users",
             nativeQuery = true)
     List<Object[]> getDashboardUsersOverView(@Param("departmentId") Long departmentId,
                                              @Param("startTime") String startTime,

@@ -25,6 +25,6 @@ public class InfoProjectResponse {
 
     private LocalDate endDate;
 
-    private String department;
+    private String departmentName;
 
 }

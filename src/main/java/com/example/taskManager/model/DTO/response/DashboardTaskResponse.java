@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 public class DashboardTaskResponse {
 
-    @JsonProperty("IN_PROGRESS")
-    private Long inProgress;
+    @JsonProperty("PROCESSING")
+    private Long processing;
 
     @JsonProperty("COMPLETED")
     private Long completed;

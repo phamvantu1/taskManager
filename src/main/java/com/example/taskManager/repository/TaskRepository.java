@@ -16,13 +16,16 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "WHERE (:textSearch IS NULL OR t.title LIKE CONCAT('%', :textSearch, '%') OR t.description LIKE CONCAT('%', :textSearch, '%')) " +
             "AND (:startTime IS NULL OR t.start_time >= CAST(:startTime AS timestamp)) " +
             "AND (:endTime IS NULL OR t.end_time <= CAST(:endTime AS timestamp)) " +
-            "AND (:projectId IS NULL OR t.project_id = :projectId) " ,
+            "AND (:projectId IS NULL OR t.project_id = :projectId) " +
+            " AND (:status IS NULL OR t.status = :status) " +
+            " order by t.updated_at desc " ,
             nativeQuery = true)
     Page<Task> getAllTasks(
             @Param("textSearch") String textSearch,
             @Param("startTime") String startTime,
             @Param("endTime") String endTime,
             @Param("projectId") Long projectId,
+            @Param("status") String status,
             Pageable pageable
     );
 
@@ -52,7 +55,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query(value = """
             SELECT
                 COUNT(CASE WHEN t.status = 'COMPLETED' THEN 1 END) AS completed,
-                COUNT(CASE WHEN t.status = 'IN_PROGRESS' THEN 1 END) AS inProgress,
+                COUNT(CASE WHEN t.status = 'PROCESSING' THEN 1 END) AS inProgress,
                 COUNT(CASE WHEN t.status = 'PENDING' THEN 1 END) AS pending,
                 COUNT(CASE WHEN t.status = 'OVERDUE' THEN 1 END) AS overdue
             FROM tasks t 

@@ -58,6 +58,8 @@ public class TaskService {
             task.setStartTime(taskRequest.getStartTime());
             task.setEndTime(taskRequest.getEndTime());
             task.setLever(taskRequest.getLever());
+            task.setCreatedAt(LocalDateTime.now());
+            task.setUpdatedAt(LocalDateTime.now());
             task.setProcess(0L);
             
             taskRepository.save(task);
@@ -70,15 +72,20 @@ public class TaskService {
         }
     }
 
-    public Page<TaskResponse> getAllTasks(Integer page, Integer size, String textSearch, String startTime, String endTime, Long projectId) {
+    public Page<TaskResponse> getAllTasks(Integer page, Integer size, String textSearch, String startTime, String endTime, Long projectId, String status) {
         try {
 
             textSearch = (textSearch != null && textSearch.trim().isEmpty()) ? null : textSearch;
             startTime = (startTime != null && startTime.trim().isEmpty()) ? null : startTime;
             endTime = (endTime != null && endTime.trim().isEmpty()) ? null : endTime;
+            status = (status != null && status.trim().isEmpty()) ? null : status;
+
+            if(status != null){
+                status = TaskStatusEnum.fromLevel(Integer.parseInt(status)).name();
+            }
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId,pageable);
+            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId,status,pageable);
 
             return tasks.map(task -> {
                 User createdByUser = userRepository.findById(task.getCreatedBy())
@@ -101,7 +108,6 @@ public class TaskService {
                         .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
             }
 
-
             long inProgressCount = 0;
             long completedCount = 0;
             long pendingCount = 0;
@@ -113,7 +119,7 @@ public class TaskService {
             List<Task> tasks = taskRepository.findAllByProjectId(projectId);
             for (Task task : tasks) {
                 String status = task.getStatus();
-                if ("IN_PROGRESS".equalsIgnoreCase(status)) {
+                if ("PROCESSING".equalsIgnoreCase(status)) {
                     inProgressCount++;
                 } else if ("COMPLETED".equalsIgnoreCase(status)) {
                     completedCount++;
@@ -124,7 +130,7 @@ public class TaskService {
                 }
             }
 
-            dashboardResponse.setInProgress(inProgressCount);
+            dashboardResponse.setProcessing(inProgressCount);
             dashboardResponse.setCompleted(completedCount);
             dashboardResponse.setPending(pendingCount);
             dashboardResponse.setOverdue(overdueCount);
@@ -183,7 +189,7 @@ public class TaskService {
         } catch(CustomException e){
             throw e;
         }catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("Có lỗi trong quá trình cập nhập "+ e.getMessage());
         }
     }
 

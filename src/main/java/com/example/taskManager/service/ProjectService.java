@@ -52,6 +52,7 @@ public class ProjectService {
             project.setStartTime(projectRequest.getStartTime());
             project.setStatus(ProjectStatusEnum.PENDING.name());
             project.setType(projectRequest.getType());
+            project.setDeleted(false);
 
             User user = userRepository.findById(projectRequest.getOwnerId())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
@@ -68,6 +69,7 @@ public class ProjectService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Page<Project> getAllProjects(int page, int size, Long departmentId,String textSearch, String status, String startTime ,String endTime ) {
         try {
 
@@ -80,6 +82,10 @@ public class ProjectService {
 
             textSearch = (textSearch != null && textSearch.trim().isEmpty()) ? null : textSearch;
             status = (status != null && status.trim().isEmpty()) ? null : status;
+
+            if(status != null){
+                status = ProjectStatusEnum.fromLevel(Integer.parseInt(status)).name();
+            }
 
             Pageable pageable =  PageRequest.of(page, size);
             return  projectRepository.findAllProject(pageable, departmentId, textSearch, status,startTime , endTime);
@@ -94,11 +100,17 @@ public class ProjectService {
     @Transactional
     public InfoProjectResponse getInfoProject(Long projectId) {
         try {
+
+            InfoProjectResponse response = new InfoProjectResponse();
+
             Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
 
-            Department department = departmentRepository.findById(project.getDepartment().getId())
-                    .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+            if(project.getDepartment()!= null){
+                Department department = departmentRepository.findById(project.getDepartment().getId())
+                        .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+                response.setDepartmentName(department.getName());
+            }
 
             List<User> listMember = userRepository.listUserInProject(projectId);
 
@@ -112,7 +124,6 @@ public class ProjectService {
                 }
             }
 
-            InfoProjectResponse response = new InfoProjectResponse();
             response.setId(project.getId());
             response.setName(project.getName());
             response.setDescription(project.getDescription());
@@ -122,7 +133,6 @@ public class ProjectService {
             response.setStatus(project.getStatus());
             response.setStartDate(project.getStartTime());
             response.setEndDate(project.getEndTime());
-            response.setDepartment(department.getName());
 
             return response;
 
@@ -147,10 +157,10 @@ public class ProjectService {
         }
     }
 
-    public Map<String, String> updateProject(ProjectRequest projectRequest){
+    public Map<String, String> updateProject(Long projectId ,ProjectRequest projectRequest){
         try {
 
-            Project project = projectRepository.findById(projectRequest.getId())
+            Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
 
             User owner = userRepository.findById(projectRequest.getOwnerId())
@@ -171,6 +181,24 @@ public class ProjectService {
             projectRepository.save(project);
 
             return Map.of("message", "Cập nhập dự án thất bại");
+        } catch(CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update project : " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> deleteProject(Long projectId){
+        try {
+
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
+
+            project.setDeleted(true);
+
+            projectRepository.save(project);
+
+            return Map.of("message", "Xóa dự án thành công");
         } catch(CustomException e) {
             throw e;
         } catch (Exception e) {

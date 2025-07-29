@@ -19,7 +19,7 @@ public enum ResponseCode {
     FORBIDDEN("ERR_403", "Access denied", HttpStatus.FORBIDDEN),
 
     // ======= Custom Example =======
-    USER_NOT_FOUND("ERR_404", "Không tìm thấy user", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND("ERR_404", "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
     EMAIL_NOT_FOUND("ERR_404", "Email không đúng", HttpStatus.NOT_FOUND),
     PASSWORD_INVALID("ERR_404", "Mật khẩu không đúng", HttpStatus.NOT_FOUND),
     EMAIL_ALREADY_EXISTS("ERR_409", "Email đã tồn tại", HttpStatus.CONFLICT),

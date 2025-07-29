@@ -19,7 +19,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         u.email AS email,
         COUNT(t.id) AS totalTasks,
         SUM(CASE WHEN t.status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedTasks,
-        SUM(CASE WHEN t.status = 'IN_PROGRESS' THEN 1 ELSE 0 END) AS inProgressTasks,
+        SUM(CASE WHEN t.status = 'PROCESSING' THEN 1 ELSE 0 END) AS inProgressTasks,
         SUM(CASE WHEN t.status = 'PENDING' THEN 1 ELSE 0 END) AS pendingTasks,
         SUM(CASE WHEN  t.status = 'OVERDUE' THEN 1 ELSE 0 END) AS overdueTasks
     FROM User u
@@ -40,7 +40,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             "and (:textSearch is null or p.name ILIKE CONCAT('%', LOWER(:textSearch), '%')  ) " +
             "and (:status is null or :status = p.status ) " +
             " AND (:startTime IS NULL OR p.start_time >= CAST(:startTime AS TIMESTAMP)) " +
-            " AND (:endTime IS NULL OR p.end_time <= CAST(:endTime AS TIMESTAMP)) "
+            " AND (:endTime IS NULL OR p.end_time <= CAST(:endTime AS TIMESTAMP)) " +
+            " AND p.is_deleted = false  " +
+            " order by p.created_at desc"
     , nativeQuery = true)
     Page<Project> findAllProject(Pageable pageable,
                                  @Param("departmentId") Long departmentId,

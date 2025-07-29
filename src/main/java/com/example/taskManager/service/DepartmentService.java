@@ -59,7 +59,7 @@ public class DepartmentService {
 
             departmentRepository.save(department);
 
-            return Map.of("message", "Department created successfully", "departmentId", String.valueOf(department.getId()));
+            return Map.of("message", "Thêm mới phòng ban thành công", "departmentId", String.valueOf(department.getId()));
 
         }catch (CustomException e) {
             throw e;
@@ -190,7 +190,7 @@ public class DepartmentService {
 
             departmentRepository.save(department);
 
-            return Map.of("message", "Department deleted successfully");
+            return Map.of("message", "Xoá phòng ban thành công");
 
         } catch (CustomException e) {
             throw e;
@@ -228,7 +228,7 @@ public class DepartmentService {
 
             departmentRepository.save(department);
 
-            return Map.of("message", "Department updated successfully");
+            return Map.of("message", "Cập nhập phòng ban thành công");
 
         } catch (CustomException e) {
             throw e;
@@ -270,7 +270,7 @@ public class DepartmentService {
             department.setUpdatedAt(LocalDateTime.now());
             departmentRepository.save(department);
 
-            return Map.of("message", "User added to department successfully");
+            return Map.of("message", "Thêm mới thành viên thành công");
 
         } catch (CustomException e) {
             throw e;

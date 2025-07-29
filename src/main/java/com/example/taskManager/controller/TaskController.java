@@ -26,8 +26,9 @@ public class TaskController {
                                                    @RequestParam(name = "textSearch", required = false) String textSearch,
                                                    @RequestParam(name = "startTime", required = false) String startTime,
                                                    @RequestParam(name = "endTime", required = false) String endTime,
+                                                   @RequestParam(name = "status", required = false) String status,
                                                    @RequestParam(name = "projectId", required = false) Long projectId) {
-        return ResponseEntity.ok(Response.success(taskService.getAllTasks(page, size, textSearch, startTime, endTime, projectId)));
+        return ResponseEntity.ok(Response.success(taskService.getAllTasks(page, size, textSearch, startTime, endTime, projectId, status)));
     }
 
     @GetMapping("/dashboard-tasks-by-project")
