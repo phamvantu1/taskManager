@@ -12,5 +12,9 @@ public interface DepartmentUserRepository extends JpaRepository<DepartmentUser, 
 
     List<DepartmentUser> findByDepartmentId(Long departmentId);
 
+    boolean existsByDepartmentIdAndRole(Long departmentId, String role);
+
+    DepartmentUser findByUserIdAndDepartmentId(Long userId, Long departmentId);
+
 
 }

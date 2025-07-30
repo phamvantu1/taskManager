@@ -19,7 +19,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "AND (:projectId IS NULL OR t.project_id = :projectId) " +
             " AND (:status IS NULL OR t.status = :status) " +
             " and (:type is null or (:type = 0 and t.assigned_to = :userId ) " +
-            " or (:type = 1 and t.created_by = :userId ))"+
+            " or (:type = 1 and t.created_by = :userId )) " +
+            " and t.is_deleted = 'false' "+
             " order by t.updated_at desc " ,
             nativeQuery = true)
     Page<Task> getAllTasks(
@@ -38,7 +39,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "left join projects p on t.project_id = p.id " +
             "where (:projectId is null or p.id = :projectId) " +
             " and (:type is null or (:type = 0 and t.assigned_to = :userId ) " +
-            " or (:type = 1 and t.created_by = :userId ))",
+            " or (:type = 1 and t.created_by = :userId )) " +
+            " and t.is_deleted = 'false' ",
             nativeQuery = true)
     List<Task> findAllByProjectId(@Param("projectId") Long projectId,
                                   @Param("type") Long type,

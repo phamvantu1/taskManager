@@ -5,6 +5,7 @@ import com.example.taskManager.model.DTO.request.TaskRequest;
 import com.example.taskManager.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -49,5 +50,16 @@ public class TaskController {
         return ResponseEntity.ok(Response.success(taskService.updateTask(taskId, taskRequest)));
     }
 
+    @DeleteMapping("/delete-task/{taskId}")
+    public ResponseEntity<Response<?>> deleteTask(@PathVariable(name = "taskId") Long taskId) {
+        return ResponseEntity.ok(Response.success(taskService.deleteTask(taskId)));
+    }
+
+    @PutMapping("/mark-finish-task/{taskId}")
+    public ResponseEntity<Response<?>> markFinishTask(@PathVariable(name = "taskId") Long taskId,
+                                                      Authentication authentication) {
+        return ResponseEntity.ok(Response.success(taskService.markFinishTask(taskId, authentication)));
+
+    }
 
 }

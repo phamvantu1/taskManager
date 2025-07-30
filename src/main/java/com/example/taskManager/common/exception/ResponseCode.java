@@ -34,10 +34,12 @@ public enum ResponseCode {
 
     PROJECT_NOT_FOUND("ERR_404", "Không tìm thấy dự án", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("ERR_404", "Không tìm thấy công việc", HttpStatus.NOT_FOUND),
+    YOU_DONT_PERMISSI_TASK("404", "Bạn không có quyền thực hiện công việc này" , HttpStatus.FORBIDDEN),
 
     DEPARTMENT_NOT_FOUND("ERR_404", "Không tìm thấy phòng ban", HttpStatus.NOT_FOUND),
     DEPARTMENT_ALREADY_DELETED("ERR_409", "Phòng ban đã bị xóa", HttpStatus.CONFLICT),
     USER_ALREADY_IN_DEPARTMENT("ERR_409", "Người dùng đã có trong phòng ban", HttpStatus.CONFLICT),
+    DEPARTMENT_HAS_LEADER("409", "Đơn vị đã có lãnh đạo", HttpStatus.CONFLICT ),
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);
 

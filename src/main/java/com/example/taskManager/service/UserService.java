@@ -6,10 +6,13 @@ import com.example.taskManager.model.DTO.request.ChangePasswordRequest;
 import com.example.taskManager.model.DTO.request.UserInforRequest;
 import com.example.taskManager.model.DTO.response.UserDashBoard;
 import com.example.taskManager.model.DTO.response.UserDashboardResponse;
+import com.example.taskManager.model.DTO.response.UserDepartmnetResponse;
 import com.example.taskManager.model.DTO.response.UserDetailDashBoard;
 import com.example.taskManager.model.entity.Department;
+import com.example.taskManager.model.entity.DepartmentUser;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.DepartmentRepository;
+import com.example.taskManager.repository.DepartmentUserRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +37,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DepartmentRepository departmentRepository;
+    private final DepartmentUserRepository departmentUserRepository;
 
     public User getUserByEmail(Authentication authentication) {
         try{
@@ -103,10 +106,28 @@ public class UserService {
        }
     }
 
-    public Page<User> getAllUsers(int page, int size, Long departmentId) {
+
+    public Page<UserDepartmnetResponse> getAllUsers(int page, int size, Long departmentId) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            return userRepository.findAllUser(departmentId,pageable);
+            var result = userRepository.findAllUser(departmentId,pageable);
+
+            var response =  result.stream()
+                    .map(res ->{
+
+                        DepartmentUser departmentUser = departmentUserRepository.findByUserIdAndDepartmentId(res.getId(),departmentId);
+
+                        UserDepartmnetResponse departmnetResponse = new UserDepartmnetResponse();
+                        departmnetResponse.setId(res.getId());
+                        departmnetResponse.setEmail(res.getEmail());
+                        departmnetResponse.setFullName(res.getFullName());
+                        departmnetResponse.setRole(departmentUser != null ? departmentUser.getRole() : "");
+                        return departmnetResponse;
+                    }).toList();
+
+            return new PageImpl<>(response, pageable, result.getTotalElements());
+
+
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {

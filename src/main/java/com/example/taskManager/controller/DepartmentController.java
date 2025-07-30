@@ -53,8 +53,9 @@ public class DepartmentController {
     @PostMapping("/add-user/{departmentId}/{userId}")
     public ResponseEntity<Response<?>> addUserToDepartment(@PathVariable Long departmentId,
                                                            @PathVariable Long userId,
-                                                           Authentication authentication) {
-        return ResponseEntity.ok(Response.success(departmentService.addUserToDepartment(departmentId, userId, authentication)));
+                                                           Authentication authentication,
+                                                           @RequestParam(name = "role", required = false, defaultValue = "STAFF" ) String role ) {
+        return ResponseEntity.ok(Response.success(departmentService.addUserToDepartment(departmentId, userId, authentication, role)));
     }
 
 

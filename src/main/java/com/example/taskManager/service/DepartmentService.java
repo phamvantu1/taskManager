@@ -238,7 +238,7 @@ public class DepartmentService {
     }
 
     @Transactional
-    public Map<String, String> addUserToDepartment(Long departmentId, Long userId, Authentication authentication) {
+    public Map<String, String> addUserToDepartment(Long departmentId, Long userId, Authentication authentication, String role) {
         try {
 
             String email = authentication.getName();
@@ -247,6 +247,8 @@ public class DepartmentService {
 
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+            boolean departmentUserLeader = departmentUserRepository.existsByDepartmentIdAndRole(departmentId, "LEADER");
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
@@ -257,10 +259,14 @@ public class DepartmentService {
                 throw new CustomException(ResponseCode.USER_ALREADY_IN_DEPARTMENT);
             }
 
+            if (role.equals("LEADER") && departmentUserLeader){
+                throw new CustomException(ResponseCode.DEPARTMENT_HAS_LEADER);
+            }
+
             DepartmentUser departmentUser = new DepartmentUser();
             departmentUser.setDepartment(department);
             departmentUser.setUser(user);
-            departmentUser.setRole("MEMBER"); // Mặc định là MEMBER, có thể thay đổi sau
+            departmentUser.setRole(role);
             departmentUser.setJoinedAt(LocalDateTime.now());
 
             // Lưu thông tin vào bảng trung gian

@@ -43,4 +43,6 @@ public class Task {
 
     @CreationTimestamp
     private LocalDateTime updatedAt;
+
+    private Boolean isDeleted ;
 }

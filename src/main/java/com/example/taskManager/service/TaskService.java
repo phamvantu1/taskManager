@@ -29,24 +29,24 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class TaskService {
-    
-    
+
+
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
 
 
-    public Map<String, String > createTask(TaskRequest taskRequest) {
-        try{
+    public Map<String, String> createTask(TaskRequest taskRequest) {
+        try {
             Task task = new Task();
-            
+
             User assignee = userRepository.findById(taskRequest.getAssigneeId())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
             User creator = userRepository.findById(taskRequest.getCreatedById())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
-            if (taskRequest.getProjectId()!= null){
+            if (taskRequest.getProjectId() != null) {
                 Project project = projectRepository.findById(taskRequest.getProjectId())
                         .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
                 task.setProject(project);
@@ -63,13 +63,14 @@ public class TaskService {
             task.setCreatedAt(LocalDateTime.now());
             task.setUpdatedAt(LocalDateTime.now());
             task.setProcess(0L);
-            
+            task.setIsDeleted(false);
+
             taskRepository.save(task);
 
             return Map.of("message", "Tạo mới công việc thành công");
-        }catch(CustomException e){
+        } catch (CustomException e) {
             throw e;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Có lỗi khi tạo mới công việc " + e.getMessage());
         }
     }
@@ -87,21 +88,21 @@ public class TaskService {
             endTime = (endTime != null && endTime.trim().isEmpty()) ? null : endTime;
             status = (status != null && status.trim().isEmpty()) ? null : status;
 
-            if(status != null){
+            if (status != null) {
                 status = TaskStatusEnum.fromLevel(Integer.parseInt(status)).name();
             }
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId,status,type, user.getId(),pageable);
+            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId, status, type, user.getId(), pageable);
 
             return tasks.map(task -> {
                 User createdByUser = userRepository.findById(task.getCreatedBy())
                         .orElse(null);
                 return TaskMapper.toTaskResponse(task, createdByUser);
             });
-        } catch(CustomException e){
+        } catch (CustomException e) {
             throw e;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -117,7 +118,7 @@ public class TaskService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
-            if(projectId != null){
+            if (projectId != null) {
                 Project project = projectRepository.findById(projectId)
                         .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
             }
@@ -139,7 +140,7 @@ public class TaskService {
                     completedCount++;
                 } else if ("PENDING".equalsIgnoreCase(status)) {
                     pendingCount++;
-                }else{
+                } else {
                     overdueCount++;
                 }
             }
@@ -153,36 +154,36 @@ public class TaskService {
             return dashboardResponse;
 
 
-        } catch(CustomException e){
+        } catch (CustomException e) {
             throw e;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
     public TaskResponse getTaskDetails(Long taskId) {
         try {
-            var task =  taskRepository.findById(taskId)
+            var task = taskRepository.findById(taskId)
                     .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
 
             User createdByUser = userRepository.findById(task.getCreatedBy())
                     .orElseThrow((() -> new CustomException(ResponseCode.USER_NOT_FOUND)));
 
             return TaskMapper.toTaskResponse(task, createdByUser);
-        } catch(CustomException e){
+        } catch (CustomException e) {
             throw e;
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
 
     public Map<String, String> updateTask(Long taskId, TaskRequest taskRequest) {
-        try{
+        try {
 
             Task task = taskRepository.findById(taskId)
                     .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
 
-            if (taskRequest.getAssigneeId() != null){
+            if (taskRequest.getAssigneeId() != null) {
                 User assignee = userRepository.findById(taskRequest.getAssigneeId())
                         .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
                 task.setAssignedTo(assignee);
@@ -200,14 +201,57 @@ public class TaskService {
 
             return Map.of("message", "update task successfully");
 
-        } catch(CustomException e){
+        } catch (CustomException e) {
             throw e;
-        }catch (Exception e) {
-            throw new RuntimeException("Có lỗi trong quá trình cập nhập "+ e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình cập nhập " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> deleteTask(Long taskId) {
+        try {
+
+            Task task = taskRepository.findById(taskId).orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+            task.setIsDeleted(true);
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "Xóa công việc thành công");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình xóa công việc " + e.getMessage());
         }
     }
 
 
+    public Map<String, String> markFinishTask(Long taskId, Authentication authentication) {
+        try {
+
+            User user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            if (!task.getAssignedTo().getId().equals(user.getId())) {
+                throw new CustomException(ResponseCode.YOU_DONT_PERMISSI_TASK);
+            }
+            task.setProcess(100L);
+            task.setStatus(TaskStatusEnum.COMPLETED.name());
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "Công vệc hoàn thành");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình hoàn thành công việc " + e.getMessage());
+        }
+    }
 
 
 }
