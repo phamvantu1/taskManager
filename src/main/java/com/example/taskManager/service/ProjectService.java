@@ -52,7 +52,7 @@ public class ProjectService {
             project.setStartTime(projectRequest.getStartTime());
             project.setStatus(ProjectStatusEnum.PENDING.name());
             project.setType(projectRequest.getType());
-            project.setDeleted(false);
+            project.setIsDeleted(false);
 
             User user = userRepository.findById(projectRequest.getOwnerId())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
@@ -194,7 +194,7 @@ public class ProjectService {
             Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
 
-            project.setDeleted(true);
+            project.setIsDeleted(true);
 
             projectRepository.save(project);
 

@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -72,8 +74,13 @@ public class TaskService {
         }
     }
 
-    public Page<TaskResponse> getAllTasks(Integer page, Integer size, String textSearch, String startTime, String endTime, Long projectId, String status) {
+    public Page<TaskResponse> getAllTasks(Integer page, Integer size, String textSearch, String startTime, String endTime, Long projectId, String status, Long type) {
         try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
             textSearch = (textSearch != null && textSearch.trim().isEmpty()) ? null : textSearch;
             startTime = (startTime != null && startTime.trim().isEmpty()) ? null : startTime;
@@ -85,7 +92,7 @@ public class TaskService {
             }
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId,status,pageable);
+            Page<Task> tasks = taskRepository.getAllTasks(textSearch, startTime, endTime, projectId,status,type, user.getId(),pageable);
 
             return tasks.map(task -> {
                 User createdByUser = userRepository.findById(task.getCreatedBy())
@@ -100,8 +107,15 @@ public class TaskService {
     }
 
 
-    public DashboardTaskResponse getDashboardTasksByProject(Long projectId) {
+    public DashboardTaskResponse getDashboardTasksByProject(Long projectId, Long type) {
         try {
+            // type = 0 duoc giao
+            // type = 1 giao
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
             if(projectId != null){
                 Project project = projectRepository.findById(projectId)
@@ -116,7 +130,7 @@ public class TaskService {
             DashboardTaskResponse dashboardResponse = new DashboardTaskResponse();
 
             // Lấy danh sách các task của dự án
-            List<Task> tasks = taskRepository.findAllByProjectId(projectId);
+            List<Task> tasks = taskRepository.findAllByProjectId(projectId, type, user.getId());
             for (Task task : tasks) {
                 String status = task.getStatus();
                 if ("PROCESSING".equalsIgnoreCase(status)) {

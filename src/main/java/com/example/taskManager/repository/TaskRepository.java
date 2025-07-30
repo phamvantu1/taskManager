@@ -18,6 +18,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "AND (:endTime IS NULL OR t.end_time <= CAST(:endTime AS timestamp)) " +
             "AND (:projectId IS NULL OR t.project_id = :projectId) " +
             " AND (:status IS NULL OR t.status = :status) " +
+            " and (:type is null or (:type = 0 and t.assigned_to = :userId ) " +
+            " or (:type = 1 and t.created_by = :userId ))"+
             " order by t.updated_at desc " ,
             nativeQuery = true)
     Page<Task> getAllTasks(
@@ -26,15 +28,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("endTime") String endTime,
             @Param("projectId") Long projectId,
             @Param("status") String status,
+            @Param("type") Long type,
+            @Param("userId") Long userId,
             Pageable pageable
     );
 
 
-    @Query(value = "select t.* from tasks t " +
-            "join projects p on t.project_id = p.id " +
-            "where :projectId is null or p.id = :projectId " ,
+    @Query(value = "select distinct t.* from tasks t " +
+            "left join projects p on t.project_id = p.id " +
+            "where (:projectId is null or p.id = :projectId) " +
+            " and (:type is null or (:type = 0 and t.assigned_to = :userId ) " +
+            " or (:type = 1 and t.created_by = :userId ))",
             nativeQuery = true)
-    List<Task> findAllByProjectId(@Param("projectId") Long projectId);
+    List<Task> findAllByProjectId(@Param("projectId") Long projectId,
+                                  @Param("type") Long type,
+                                  @Param("userId") Long userId);
 
 
     @Query(value = "SELECT  count(distinct t.id) from tasks t " +

@@ -27,13 +27,15 @@ public class TaskController {
                                                    @RequestParam(name = "startTime", required = false) String startTime,
                                                    @RequestParam(name = "endTime", required = false) String endTime,
                                                    @RequestParam(name = "status", required = false) String status,
-                                                   @RequestParam(name = "projectId", required = false) Long projectId) {
-        return ResponseEntity.ok(Response.success(taskService.getAllTasks(page, size, textSearch, startTime, endTime, projectId, status)));
+                                                   @RequestParam(name = "projectId", required = false) Long projectId,
+                                                   @RequestParam(name = "type", required = false) Long type) {
+        return ResponseEntity.ok(Response.success(taskService.getAllTasks(page, size, textSearch, startTime, endTime, projectId, status, type)));
     }
 
     @GetMapping("/dashboard-tasks-by-project")
-    public ResponseEntity<Response<?>> getDashboardTasksByProject(@RequestParam(name = "projectId", required = false) Long projectId) {
-        return ResponseEntity.ok(Response.success(taskService.getDashboardTasksByProject(projectId)));
+    public ResponseEntity<Response<?>> getDashboardTasksByProject(@RequestParam(name = "projectId", required = false) Long projectId,
+                                                                  @RequestParam(name = "type", required = false) Long type ){
+        return ResponseEntity.ok(Response.success(taskService.getDashboardTasksByProject(projectId, type)));
     }
 
     @GetMapping("/get-details/{taskId}")
@@ -46,4 +48,6 @@ public class TaskController {
                                                   @RequestBody TaskRequest taskRequest) {
         return ResponseEntity.ok(Response.success(taskService.updateTask(taskId, taskRequest)));
     }
+
+
 }

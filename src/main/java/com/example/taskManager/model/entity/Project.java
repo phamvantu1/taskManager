@@ -51,8 +51,8 @@ public class Project {
 
     private LocalDateTime updateTime;
 
-    @Column(nullable = false)
-    private boolean isDeleted ;
+    @Column(nullable = true)
+    private Boolean isDeleted = false;
 
 
 }
