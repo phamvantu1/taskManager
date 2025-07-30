@@ -117,11 +117,18 @@ public class UserService {
 
                         DepartmentUser departmentUser = departmentUserRepository.findByUserIdAndDepartmentId(res.getId(),departmentId);
 
+                        var newRole = departmentUser != null ? departmentUser.getRole() : "";
+                        if(newRole.equals("LEADER")){
+                            newRole = "Lãnh đạo";
+                        }else{
+                            newRole = "Thành viên";
+                        }
+
                         UserDepartmnetResponse departmnetResponse = new UserDepartmnetResponse();
                         departmnetResponse.setId(res.getId());
                         departmnetResponse.setEmail(res.getEmail());
                         departmnetResponse.setFullName(res.getFullName());
-                        departmnetResponse.setRole(departmentUser != null ? departmentUser.getRole() : "");
+                        departmnetResponse.setRole(newRole);
                         return departmnetResponse;
                     }).toList();
 
