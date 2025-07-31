@@ -151,8 +151,8 @@ public class UserService {
     public UserDashboardResponse getUserDashboard(Authentication authentication, int page, int size, Long departmentId, String textSearch) {
         try {
             List<User> admins = userRepository.findAdmin();
-            List<User> leaders = userRepository.findLeaderDepartment();
-            List<User> projectManagers = userRepository.findPM();
+            List<User> leaders = userRepository.findLeaderDepartment(departmentId,textSearch);
+            List<User> projectManagers = userRepository.findPM(departmentId,textSearch);
 
             Set<Long> specialIds = Stream.of(admins, leaders, projectManagers)
                     .flatMap(List::stream)
@@ -160,7 +160,7 @@ public class UserService {
                     .collect(Collectors.toSet());
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<User> memberPage = userRepository.findAllExcludeIds(specialIds, pageable);
+            Page<User> memberPage = userRepository.findAllExcludeIds(specialIds,departmentId,textSearch, pageable);
 
 
             Set<UserDetailDashBoard> adminSet = admins.stream()

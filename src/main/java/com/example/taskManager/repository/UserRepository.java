@@ -27,31 +27,46 @@ public interface UserRepository extends JpaRepository<User, Long> {
             " join tasks t on u.id = t.assigned_to " +
             " join projects p on p.id = t.project_id " +
             "where p.id = :projectId "
-    , nativeQuery = true)
+            , nativeQuery = true)
     List<User> listUserInProject(@Param("projectId") Long projectId);
 
 
     @Query(value = "SELECT distinct u.* from users u " +
             "left join department_users du on u.id = du.user_id " +
             "where (:departmentId is null OR (du.department_id = :departmentId and du.is_deleted = false)) "
-    , nativeQuery = true)
+            , nativeQuery = true)
     Page<User> findAllUser(@Param("departmentId") Long departmentId,
                            Pageable pageable);
 
 
     @Query(value = "SELECT distinct u.* from users u " +
-            "join projects p on p.owner_id = u.id "
+            "join projects p on p.owner_id = u.id " +
+            "left join department_users du on u.id = du.user_id " +
+            "left join departments d on d.id = du.department_id " +
+            "where d.status = 'ACTIVE' " +
+            " and (:departmentId is null or d.id = :departmentId  ) " +
+            " and (:textSearch is null or u.first_name ILIKE concat('%', lower(:textSearch), '%' )  " +
+            "  or u.last_name ILIKE concat('%', lower(:textSearch), '%' ) " +
+            "  or u.email ILIKE concat('%', lower(:textSearch), '%' )  ) " +
+            " and u.is_active = true "
             , nativeQuery = true)
-    List<User> findPM();
+    List<User> findPM(@Param("departmentId") Long departmentId,
+                      @Param("textSearch") String textSearch);
 
-    @Query(value = "select distinct  u.* from users u "  +
+    @Query(value = "select distinct  u.* from users u " +
             "join department_users du on du.user_id = u.id " +
             " join departments d on d.id = du.department_id " +
-            "where d.status = 'ACTIVE' " +
+            "where d.status = 'ACTIVE'  " +
             " and du.role = 'LEADER' " +
-            " and du.is_deleted = false "
-    , nativeQuery = true)
-    List<User> findLeaderDepartment();
+            " and du.is_deleted = false " +
+            " and (:departmentId is null or d.id = :departmentId  )" +
+            " and (:textSearch is null or u.first_name ILIKE concat('%', lower(:textSearch), '%' )  " +
+            "  or u.last_name ILIKE concat('%', lower(:textSearch), '%' ) " +
+            "  or u.email ILIKE concat('%', lower(:textSearch), '%' )  ) " +
+            " and u.is_active = true "
+            , nativeQuery = true)
+    List<User> findLeaderDepartment(@Param("departmentId") Long departmentId,
+                                    @Param("textSearch") String textSearch);
 
     @Query(value = "select distinct  u.* from users u " +
             "join departments d on d.leader_id = u.id " +
@@ -59,8 +74,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
             , nativeQuery = true)
     List<User> findAdmin();
 
-    @Query("SELECT u FROM User u WHERE u.id NOT IN :excludedIds")
-    Page<User> findAllExcludeIds(@Param("excludedIds") Set<Long> excludedIds, Pageable pageable);
+    @Query(value = "SELECT distinct u.* FROM users u " +
+            "left join department_users du on u.id = du.user_id " +
+            "left join departments d on d.id = du.department_id " +
+            "WHERE u.id NOT IN :excludedIds " +
+            " and u.is_active = 'true' " +
+            " and d.status = 'ACTIVE' " +
+            "and (:departmentId IS NULL OR du.department_id = :departmentId) " +
+            " and (:textSearch is null or u.first_name ILIKE concat('%', lower(:textSearch), '%' )  " +
+            "  or u.last_name ILIKE concat('%', lower(:textSearch), '%' ) " +
+            "  or u.email ILIKE concat('%', lower(:textSearch), '%' )  ) "
+            , nativeQuery = true)
+    Page<User> findAllExcludeIds(@Param("excludedIds") Set<Long> excludedIds,
+                                 @Param("departmentId") Long departmentId,
+                                 @Param("textSearch") String textSearch,
+                                 Pageable pageable);
 
 
     @Query(value = "SELECT count(DISTINCT u.id) FROM users u " +
