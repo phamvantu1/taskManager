@@ -25,7 +25,7 @@ public class Department {
 
     private String description;
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
     @JsonIgnore
     private Set<DepartmentUser> departmentUsers;
 

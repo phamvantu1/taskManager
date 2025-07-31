@@ -122,7 +122,6 @@ public class UserService {
                         var newRole = departmentUser != null ? departmentUser.getRole() : "";
                         if(newRole.equals("LEADER")){
                             newRole = "Lãnh đạo";
-                            log.info("hahah");
                         }else{
                             newRole = "Thành viên";
                         }
@@ -149,7 +148,7 @@ public class UserService {
 
 
     @Transactional
-    public UserDashboardResponse getUserDashboard(Authentication authentication, int page, int size) {
+    public UserDashboardResponse getUserDashboard(Authentication authentication, int page, int size, Long departmentId, String textSearch) {
         try {
             List<User> admins = userRepository.findAdmin();
             List<User> leaders = userRepository.findLeaderDepartment();
@@ -162,6 +161,7 @@ public class UserService {
 
             Pageable pageable = PageRequest.of(page, size);
             Page<User> memberPage = userRepository.findAllExcludeIds(specialIds, pageable);
+
 
             Set<UserDetailDashBoard> adminSet = admins.stream()
                     .map(u -> new UserDetailDashBoard(u.getId(), u.getFullName(), null))

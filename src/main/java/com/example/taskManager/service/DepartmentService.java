@@ -83,7 +83,7 @@ public class DepartmentService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public DepartmentCommonResponse getCommonDepartment(Long departmentId) {
         try {
 
@@ -96,6 +96,8 @@ public class DepartmentService {
 
             List<DepartmentUser> departmentUser = departmentUserRepository.findByDepartmentId(departmentId);
 
+            List<Project> listProject = projectRepository.findByDepartmentId(departmentId);
+
             DepartmentCommonResponse response = new DepartmentCommonResponse();
             response.setId(department.getId());
             response.setName(department.getName());
@@ -104,7 +106,7 @@ public class DepartmentService {
             response.setCreatedByName(departmentMapper.mapFullName(department.getCreatedBy()));
             response.setCreatedAt(department.getCreatedAt());
             response.setUpdatedAt(department.getUpdatedAt());
-            response.setNumberOfProjects((long) department.getProject().size());
+            response.setNumberOfProjects((long)listProject.size());
             response.setNumberOfUsers((long) departmentUser.size());
 
             return response;

@@ -48,7 +48,9 @@ public class UserController {
     @GetMapping("/get-user-dashboard")
     public ResponseEntity<Response<?>> getUserDashboard(Authentication authentication,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
-                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(Response.success(userService.getUserDashboard(authentication, page, size)));
+                                                        @RequestParam(name = "size", defaultValue = "10") int size,
+                                                        @RequestParam(name = "departmentId", required = false) Long departmentId,
+                                                        @RequestParam(name = "textSearch", required = false) String textSearch ){
+        return ResponseEntity.ok(Response.success(userService.getUserDashboard(authentication, page, size, departmentId,textSearch )));
     }
 }
