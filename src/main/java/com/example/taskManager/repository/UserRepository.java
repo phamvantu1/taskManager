@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT distinct u.* from users u " +
             "left join department_users du on u.id = du.user_id " +
-            "where :departmentId is null OR du.department_id = :departmentId "
+            "where (:departmentId is null OR (du.department_id = :departmentId and du.is_deleted = false)) "
     , nativeQuery = true)
     Page<User> findAllUser(@Param("departmentId") Long departmentId,
                            Pageable pageable);
@@ -45,8 +45,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findPM();
 
     @Query(value = "select distinct  u.* from users u "  +
-            "join departments d on d.leader_id = u.id " +
-            "where d.status = 'ACTIVE' "
+            "join department_users du on du.user_id = u.id " +
+            " join departments d on d.id = du.department_id " +
+            "where d.status = 'ACTIVE' " +
+            " and du.role = 'LEADER' " +
+            " and du.is_deleted = false "
     , nativeQuery = true)
     List<User> findLeaderDepartment();
 

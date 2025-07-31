@@ -52,7 +52,6 @@ public class DepartmentService {
             department.setName(departmentRequest.getName());
             department.setDescription(departmentRequest.getDescription());
             department.setCreatedBy(creator);
-            department.setLeader(leader);
             department.setCreatedAt(LocalDateTime.now());
             department.setUpdatedAt(LocalDateTime.now());
             department.setStatus(DepartmentStatus.ACTIVE.name());
@@ -91,13 +90,17 @@ public class DepartmentService {
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
 
+            DepartmentUser leader = departmentUserRepository.findByDepartmentIdAndRole(departmentId, "LEADER");
+
+            User leaderUser = leader != null ? leader.getUser() : null;
+
             List<DepartmentUser> departmentUser = departmentUserRepository.findByDepartmentId(departmentId);
 
             DepartmentCommonResponse response = new DepartmentCommonResponse();
             response.setId(department.getId());
             response.setName(department.getName());
             response.setDescription(department.getDescription());
-            response.setLeaderName(departmentMapper.mapFullName(department.getLeader()));
+            response.setLeaderName(leaderUser != null ? leaderUser.getFirstName() : "");
             response.setCreatedByName(departmentMapper.mapFullName(department.getCreatedBy()));
             response.setCreatedAt(department.getCreatedAt());
             response.setUpdatedAt(department.getUpdatedAt());
@@ -219,9 +222,26 @@ public class DepartmentService {
                 department.setDescription(departmentRequest.getDescription());
             }
             if (departmentRequest.getLeader_id() != null) {
-                User leader = userRepository.findById(departmentRequest.getLeader_id())
+                User newLeader = userRepository.findById(departmentRequest.getLeader_id())
                         .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
-                department.setLeader(leader);
+                DepartmentUser oldLeader = departmentUserRepository.findByDepartmentIdAndRole(departmentId, "LEADER");
+                oldLeader.setRole("STAFF");
+                departmentUserRepository.save(oldLeader);
+
+                DepartmentUser departmentUser = departmentUserRepository.findByUserIdAndDepartmentId(departmentRequest.getLeader_id(),departmentId );
+                if (departmentUser != null) {
+                    departmentUser.setRole("LEADER");
+                } else {
+                    departmentUser = new DepartmentUser();
+                    departmentUser.setDepartment(department);
+                    departmentUser.setUser(newLeader);
+                    departmentUser.setRole("LEADER");
+                    departmentUser.setJoinedAt(LocalDateTime.now());
+                    departmentUser.setIsDeleted(false);
+                }
+
+                departmentUserRepository.save(departmentUser);
+
             }
 
             department.setUpdatedAt(LocalDateTime.now());
@@ -248,14 +268,14 @@ public class DepartmentService {
             Department department = departmentRepository.findById(departmentId)
                     .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
 
-            boolean departmentUserLeader = departmentUserRepository.existsByDepartmentIdAndRole(departmentId, "LEADER");
+            Boolean departmentUserLeader = departmentUserRepository.existsByDepartmentIdAndRole(departmentId, "LEADER");
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
 
-            boolean checkUserExistInDepartment = departmentUserRepository.existsByDepartmentIdAndUserId(departmentId, userId);
-            if (checkUserExistInDepartment) {
+            Boolean checkUserExistInDepartment = departmentUserRepository.existsByDepartmentIdAndUserId(departmentId, userId);
+            if (checkUserExistInDepartment ) {
                 throw new CustomException(ResponseCode.USER_ALREADY_IN_DEPARTMENT);
             }
 
@@ -282,6 +302,82 @@ public class DepartmentService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("An unexpected error occurred while adding the user to the department: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public Map<String,String> removeUserFromDepartment(Long departmentId, Long userId, Authentication authentication) {
+        try {
+
+            String email = authentication.getName();
+            User updater = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Department department = departmentRepository.findById(departmentId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+            DepartmentUser departmentUser = departmentUserRepository.findByUserIdAndDepartmentId(userId,departmentId);
+
+            if (departmentUser == null) {
+                throw new CustomException(ResponseCode.USER_NOT_IN_DEPARTMENT);
+            }
+
+            departmentUser.setIsDeleted(true);
+            departmentUserRepository.save(departmentUser);
+
+            // Cập nhật thời gian update của department
+            department.setUpdatedAt(LocalDateTime.now());
+            departmentRepository.save(department);
+
+            return Map.of("message", "Xoá thành viên khỏi phòng ban thành công");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while removing the user from the department: " + e.getMessage());
+        }
+    }
+
+
+    @Transactional
+    public Map<String, String> updateUserRoleInDepartment(Long departmentId, Long userId, String role, Authentication authentication) {
+        try {
+
+            String email = authentication.getName();
+            User updater = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Department department = departmentRepository.findById(departmentId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
+
+            DepartmentUser departmentUser = departmentUserRepository.findByUserIdAndDepartmentId(userId,departmentId);
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            if (departmentUser == null) {
+                throw new CustomException(ResponseCode.USER_NOT_IN_DEPARTMENT);
+            }
+
+            if (role.equals("LEADER") && departmentUserRepository.existsByDepartmentIdAndRole(departmentId, "LEADER")) {
+                DepartmentUser oldLeader = departmentUserRepository.findByDepartmentIdAndRole(departmentId, "LEADER");
+                oldLeader.setRole("STAFF");
+                departmentUserRepository.save(oldLeader);
+            }
+
+            departmentUser.setRole(role);
+            departmentUserRepository.save(departmentUser);
+
+            // Cập nhật thời gian update của department
+            department.setUpdatedAt(LocalDateTime.now());
+            departmentRepository.save(department);
+
+            return Map.of("message", "Cập nhập vai trò thành công");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred while updating the user role in the department: " + e.getMessage());
         }
     }
 }

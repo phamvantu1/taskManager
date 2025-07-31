@@ -10,8 +10,6 @@ import org.mapstruct.Named;
 @Mapper(componentModel = "spring")
 public interface DepartmentMapper {
 
-
-    @Mapping(source = "leader", target = "leaderName", qualifiedByName = "mapFullName")
     @Mapping(source = "createdBy", target = "createdByName", qualifiedByName = "mapFullName")
     DepartmentResponse toDepartmentResponse(Department department);
 

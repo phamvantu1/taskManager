@@ -8,7 +8,7 @@ public enum ResponseCode {
 
     // ======= System Errors =======
     SYSTEM("ERR_501", "System error. Please try again later!", HttpStatus.INTERNAL_SERVER_ERROR),
-    INTERNAL_SERVER_ERROR("ERR_500", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
+    INTERNAL_SERVER_ERROR("ERR_500", "Lỗi hệ thống , vui lòng đợi trong giây lát", HttpStatus.INTERNAL_SERVER_ERROR),
     NO_CODE("ERR_000", "No error code specified", HttpStatus.INTERNAL_SERVER_ERROR),
     CACHE_FAILED("VAL_500", "Cache failed", HttpStatus.INTERNAL_SERVER_ERROR),
     NOT_FOUND("ERR_404", "Resource not found", HttpStatus.NOT_FOUND),
@@ -40,6 +40,7 @@ public enum ResponseCode {
     DEPARTMENT_ALREADY_DELETED("ERR_409", "Phòng ban đã bị xóa", HttpStatus.CONFLICT),
     USER_ALREADY_IN_DEPARTMENT("ERR_409", "Người dùng đã có trong phòng ban", HttpStatus.CONFLICT),
     DEPARTMENT_HAS_LEADER("409", "Đơn vị đã có lãnh đạo", HttpStatus.CONFLICT ),
+    USER_NOT_IN_DEPARTMENT("ERR_404", "Người dùng không có trong phòng ban", HttpStatus.NOT_FOUND),
 
     BAD_REQUEST("ERR_400", "Bad request", HttpStatus.BAD_REQUEST);
 

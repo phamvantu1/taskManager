@@ -25,11 +25,6 @@ public class Department {
 
     private String description;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "leader_id")
-    private User leader;
-
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<DepartmentUser> departmentUsers;

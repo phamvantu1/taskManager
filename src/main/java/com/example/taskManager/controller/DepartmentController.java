@@ -58,5 +58,21 @@ public class DepartmentController {
         return ResponseEntity.ok(Response.success(departmentService.addUserToDepartment(departmentId, userId, authentication, role)));
     }
 
+    @DeleteMapping("/remove-user/{departmentId}/{userId}")
+    public ResponseEntity<Response<?>> removeUserFromDepartment(@PathVariable Long departmentId,
+                                                                @PathVariable Long userId,
+                                                                Authentication authentication) {
+        return ResponseEntity.ok(Response.success(departmentService.removeUserFromDepartment(departmentId, userId, authentication)));
+
+    }
+
+    @PutMapping("/update-user-role/{departmentId}/{userId}")
+    public ResponseEntity<Response<?>> updateUserRoleInDepartment(@PathVariable Long departmentId,
+                                                                   @PathVariable Long userId,
+                                                                   @RequestParam(name = "role", required = false, defaultValue = "STAFF") String role,
+                                                                   Authentication authentication) {
+        return ResponseEntity.ok(Response.success(departmentService.updateUserRoleInDepartment(departmentId, userId, role, authentication)));
+    }
+
 
 }

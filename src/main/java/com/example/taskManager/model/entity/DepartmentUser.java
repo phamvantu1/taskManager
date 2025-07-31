@@ -31,4 +31,6 @@ public class DepartmentUser {
 
     private LocalDateTime joinedAt;
 
+    private Boolean isDeleted = false;
+
 }

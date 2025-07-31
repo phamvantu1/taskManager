@@ -15,6 +15,7 @@ import com.example.taskManager.repository.DepartmentRepository;
 import com.example.taskManager.repository.DepartmentUserRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -120,6 +122,7 @@ public class UserService {
                         var newRole = departmentUser != null ? departmentUser.getRole() : "";
                         if(newRole.equals("LEADER")){
                             newRole = "Lãnh đạo";
+                            log.info("hahah");
                         }else{
                             newRole = "Thành viên";
                         }
@@ -129,6 +132,7 @@ public class UserService {
                         departmnetResponse.setEmail(res.getEmail());
                         departmnetResponse.setFullName(res.getFullName());
                         departmnetResponse.setRole(newRole);
+
                         return departmnetResponse;
                     }).toList();
 
