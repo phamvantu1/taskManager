@@ -1,5 +1,8 @@
 package com.example.taskManager.utils;
 
+import com.example.taskManager.model.entity.Permission;
+import com.example.taskManager.model.entity.Role;
+import com.example.taskManager.model.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,8 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
@@ -20,15 +24,35 @@ public class JwtUtil {
     @Value("${application.sercurity.jwt.expiration}")
     private long expiration; // milliseconds
 
-    //  Sinh token từ username
-    public String generateToken(String username) {
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+
+        // Đưa danh sách tên role vào claims
+        claims.put("role", user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList()));
+
+        // Đưa danh sách permission vào claims
+        Set<Permission> permissionsSet = user.getRoles().stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .collect(Collectors.toSet());
+
+        List<String> permissions = permissionsSet.stream()
+                .map(Permission::getName)
+                .collect(Collectors.toList());
+
+        claims.put("permissions", permissions);
+
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(claims)
+                .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
+
+
 
     // Trích xuất username
     public String extractUsername(String token) {

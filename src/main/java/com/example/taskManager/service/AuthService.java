@@ -83,7 +83,7 @@ public class AuthService {
             }
 
             // Tạo token và trả về
-            return Map.of("access_token", jwtUtil.generateToken(user.getEmail()));
+            return Map.of("access_token", jwtUtil.generateToken(user));
         }catch (CustomException e) {
             throw e;
         }
