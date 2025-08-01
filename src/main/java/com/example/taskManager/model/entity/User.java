@@ -1,12 +1,15 @@
 package com.example.taskManager.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -20,6 +23,8 @@ public class User {
 
     private String email;
 
+    private String phone;
+
     private String password;
 
     private String firstName;
@@ -27,4 +32,37 @@ public class User {
     private String lastName;
 
     private LocalDate DateOfBirth;
+
+    private String  gender;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+//    private List<Project> ownedProjects;
+
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "assignedTo", cascade = CascadeType.ALL)
+//    private List<Task> assignedTasks;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+//    private Set<DepartmentUser> departmentUsers;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName + " (" + this.email + ")";
+    }
+
 }
