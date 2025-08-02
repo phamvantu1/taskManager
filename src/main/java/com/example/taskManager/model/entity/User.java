@@ -36,7 +36,7 @@ public class User {
     private String  gender;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private Boolean isActive;
 
     @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)

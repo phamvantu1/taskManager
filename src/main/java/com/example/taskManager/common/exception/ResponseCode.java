@@ -26,6 +26,9 @@ public enum ResponseCode {
     USER_CAN_NOT_UPDATE("ERR_404", "Bạn không thể cập nhập thông tin người khác", HttpStatus.NOT_FOUND),
 
 
+    ROLE_NOT_FOUND("ERR_404", "Không tìm thấy vai trò", HttpStatus.NOT_FOUND),
+
+
     OTP_NOT_FOUND("ERR_404", "OTP không tồn tại", HttpStatus.NOT_FOUND),
     OTP_USED("ERR_409", "OTP đã được sử dụng", HttpStatus.CONFLICT),
     OTP_EXPIRED("ERR_400", "OTP đã hết hạn", HttpStatus.BAD_REQUEST),

@@ -69,10 +69,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
                                     @Param("textSearch") String textSearch);
 
     @Query(value = "select distinct  u.* from users u " +
-            "join departments d on d.leader_id = u.id " +
-            "where d.status = 'hah' "
+            "left join department_users du on u.id = du.user_id " +
+            "left join departments d on d.id = du.department_id " +
+            "join user_roles ru on ru.user_id = u.id " +
+            "join roles r on r.id = ru.role_id " +
+            "where u.is_active = 'true'" +
+            "and r.name = 'ADMIN' " +
+            "and (:departmentId IS NULL OR du.department_id = :departmentId) " +
+            " and (:textSearch is null or u.first_name ILIKE concat('%', lower(:textSearch), '%' )  " +
+            "  or u.last_name ILIKE concat('%', lower(:textSearch), '%' ) " +
+            "  or u.email ILIKE concat('%', lower(:textSearch), '%' )  ) "
             , nativeQuery = true)
-    List<User> findAdmin();
+    List<User> findAdmin( @Param("departmentId") Long departmentId,
+                          @Param("textSearch") String textSearch);
 
     @Query(value = "SELECT distinct u.* FROM users u " +
             "left join department_users du on u.id = du.user_id " +

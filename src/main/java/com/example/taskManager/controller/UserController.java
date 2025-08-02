@@ -3,6 +3,7 @@ package com.example.taskManager.controller;
 import com.example.taskManager.common.exception.Response;
 import com.example.taskManager.model.DTO.request.ChangePasswordRequest;
 import com.example.taskManager.model.DTO.request.UserInforRequest;
+import com.example.taskManager.model.DTO.response.UserInfoResponse;
 import com.example.taskManager.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,26 @@ public class UserController {
                                                         @RequestParam(name = "departmentId", required = false) Long departmentId,
                                                         @RequestParam(name = "textSearch", required = false) String textSearch ){
         return ResponseEntity.ok(Response.success(userService.getUserDashboard(authentication, page, size, departmentId,textSearch )));
+    }
+
+    @GetMapping("/get-infor-by-id")
+    public ResponseEntity<Response<?>> getUserInformationById(@RequestParam(name = "userId") Long userId) {
+        return ResponseEntity.ok(Response.success(userService.getUserInformationById(userId)));
+    }
+
+    @PutMapping("/update-user-by-admin")
+    public ResponseEntity<Response<?>> updateUserByAdmin(@RequestBody UserInforRequest userInforRequest,
+                                                         Authentication authentication) {
+        return ResponseEntity.ok(
+                Response.success(userService.updateUserByAdmin(userInforRequest, authentication))
+        );
+    }
+
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<Response<?>> deleteUser(@RequestParam(name = "userId") Long userId,
+                                                  Authentication authentication) {
+        return ResponseEntity.ok(
+                Response.success(userService.deleteUser(userId, authentication))
+        );
     }
 }

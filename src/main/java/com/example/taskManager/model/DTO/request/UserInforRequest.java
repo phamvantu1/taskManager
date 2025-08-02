@@ -7,6 +7,8 @@ import java.time.LocalDate;
 @Data
 public class UserInforRequest {
 
+    private Long id;
+
     private String email;
 
     private String phone;
@@ -18,5 +20,9 @@ public class UserInforRequest {
     private LocalDate DateOfBirth;
 
     private String  gender;
+
+    private Long departmentId;
+
+    private String role;
 
 }

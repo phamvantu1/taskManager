@@ -4,15 +4,14 @@ import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.ChangePasswordRequest;
 import com.example.taskManager.model.DTO.request.UserInforRequest;
-import com.example.taskManager.model.DTO.response.UserDashBoard;
-import com.example.taskManager.model.DTO.response.UserDashboardResponse;
-import com.example.taskManager.model.DTO.response.UserDepartmnetResponse;
-import com.example.taskManager.model.DTO.response.UserDetailDashBoard;
+import com.example.taskManager.model.DTO.response.*;
 import com.example.taskManager.model.entity.Department;
 import com.example.taskManager.model.entity.DepartmentUser;
+import com.example.taskManager.model.entity.Role;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.DepartmentRepository;
 import com.example.taskManager.repository.DepartmentUserRepository;
+import com.example.taskManager.repository.RoleRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentUserRepository departmentUserRepository;
+    private final DepartmentRepository departmentRepository;
+    private final RoleRepository roleRepository;
 
     public User getUserByEmail(Authentication authentication) {
         try{
@@ -150,7 +153,7 @@ public class UserService {
     @Transactional
     public UserDashboardResponse getUserDashboard(Authentication authentication, int page, int size, Long departmentId, String textSearch) {
         try {
-            List<User> admins = userRepository.findAdmin();
+            List<User> admins = userRepository.findAdmin(departmentId,textSearch);
             List<User> leaders = userRepository.findLeaderDepartment(departmentId,textSearch);
             List<User> projectManagers = userRepository.findPM(departmentId,textSearch);
 
@@ -196,5 +199,90 @@ public class UserService {
         }
     }
 
+    public UserInfoResponse getUserInformationById(Long userId) {
+        try {
+
+            UserInfoResponse userInfoResponse = new UserInfoResponse();
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            DepartmentUser departmentUser = departmentUserRepository.findFirstByUserId(userId);
+
+            if (departmentUser != null){
+                departmentRepository.findById(departmentUser.getDepartment().getId())
+                        .ifPresent(department -> userInfoResponse.setDepartmentName(department.getName()));
+            }
+
+            Role role = user.getRoles().stream()
+                    .findFirst().orElse(null);
+
+            userInfoResponse.setId(user.getId());
+            userInfoResponse.setFirstName(user.getFirstName());
+            userInfoResponse.setLastName(user.getLastName());
+            userInfoResponse.setDateOfBirth( user.getDateOfBirth() != null ? user.getDateOfBirth().toString() : null);
+            userInfoResponse.setGender(user.getGender());
+            userInfoResponse.setPhone(user.getPhone());
+            userInfoResponse.setRole(role != null ? role.getName() : null);
+            userInfoResponse.setEmail(user.getEmail());
+
+            return userInfoResponse;
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve user information: " + e.getMessage());
+        }
+    }
+
+
+    @Transactional
+    public Map<String, String> updateUserByAdmin(UserInforRequest userInforRequest, Authentication authentication) {
+        try {
+
+            User user = userRepository.findById(userInforRequest.getId())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            user.setFirstName(userInforRequest.getFirstName());
+            user.setLastName(userInforRequest.getLastName());
+            user.setPhone(userInforRequest.getPhone());
+            user.setDateOfBirth(userInforRequest.getDateOfBirth());
+            user.setGender(userInforRequest.getGender());
+
+            if (StringUtils.hasText(userInforRequest.getRole())){
+                Role role = roleRepository.findFirstByName(userInforRequest.getRole())
+                        .orElseThrow(() -> new CustomException(ResponseCode.ROLE_NOT_FOUND));
+                Set<Role> roles = new HashSet<>(); // Tạo một HashSet có thể thay đổi
+                roles.add(role);
+                user.setRoles(roles);
+            }
+
+            userRepository.save(user);
+
+            return Map.of("message", "Cập nhập thông tin người dùng thành công");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update user information: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public Map<String ,String > deleteUser(Long userId, Authentication authentication) {
+        try {
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            user.setIsActive(false);
+            userRepository.save(user);
+
+            return Map.of("message", "Xoá người dùng thành công");
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete user: " + e.getMessage());
+        }
+    }
 
 }
