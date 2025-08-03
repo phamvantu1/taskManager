@@ -4,7 +4,8 @@ public enum TaskStatusEnum {
     PENDING(0),
     PROCESSING(1),
     COMPLETED(2),
-    OVERDUE(3);
+    OVERDUE(3),
+    WAIT_COMPLETED(4);
 
     private final int level;
     TaskStatusEnum(int level) {

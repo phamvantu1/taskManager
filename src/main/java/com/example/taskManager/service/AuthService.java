@@ -5,9 +5,11 @@ import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.model.DTO.request.AuthRequest;
 import com.example.taskManager.model.DTO.request.ChangePasswordByOtpRequest;
 import com.example.taskManager.model.DTO.request.RegisterRequest;
+import com.example.taskManager.model.entity.Role;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.model.entity.UserOTP;
 import com.example.taskManager.repository.OtpRepository;
+import com.example.taskManager.repository.RoleRepository;
 import com.example.taskManager.repository.UserRepository;
 import com.example.taskManager.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,7 @@ public class AuthService {
     private final JwtBlacklistService jwtBlacklistService;
     private final EmailService emailService;
     private final OtpRepository otpRepository;
+    private final RoleRepository roleRepository;
 
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -59,6 +62,11 @@ public class AuthService {
             user.setLastName(registerRequest.getLastName());
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
+
+            Role role = roleRepository.findFirstByName("USER")
+                    .orElseThrow(() -> new CustomException(ResponseCode.ROLE_NOT_FOUND));
+
+            user.getRoles().add(role);
 
             // Lưu người dùng vào cơ sở dữ liệu
             userRepository.save(user);

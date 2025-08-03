@@ -3,6 +3,7 @@ package com.example.taskManager.controller;
 
 import com.example.taskManager.common.exception.Response;
 import com.example.taskManager.service.DashBoardService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,26 @@ public class DashBoardController {
                                                                 @RequestParam(name = "startTime", required = false) String startTime,
                                                                 @RequestParam(name = "endTime", required = false) String endTime) {
         return ResponseEntity.ok(Response.success(dashBoardService.getDashboardTaskOverview(departmentId, startTime, endTime)));
+    }
+
+
+    @GetMapping("/get-dashboard-userTask")
+    public ResponseEntity<Response<?>> getDashboardUserTask(@RequestParam(name = "departmentId", required = false) Long departmentId,
+                                                             @RequestParam(name = "textSearch", required = false) String textSearch,
+                                                             @RequestParam(name = "startTime", required = false) String startTime,
+                                                             @RequestParam(name = "endTime", required = false) String endTime,
+                                                             @RequestParam(name = "page", defaultValue = "0") int page,
+                                                             @RequestParam(name = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(Response.success(dashBoardService.getDashboardUserTask(departmentId, textSearch, startTime, endTime, page, size)));
+    }
+
+    @PostMapping("/export-dashboard-userTask")
+    public void exportDashboardUserTask(@RequestParam(name = "departmentId", required = false) Long departmentId,
+                                                                @RequestParam(name = "textSearch", required = false) String textSearch,
+                                                                @RequestParam(name = "startTime", required = false) String startTime,
+                                                                @RequestParam(name = "endTime", required = false) String endTime,
+                                                               HttpServletResponse response) {
+        dashBoardService.exportDashboardUserTask(departmentId, textSearch, startTime, endTime, response);
     }
 
 }
