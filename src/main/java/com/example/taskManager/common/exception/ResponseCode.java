@@ -37,7 +37,7 @@ public enum ResponseCode {
 
     PROJECT_NOT_FOUND("ERR_404", "Không tìm thấy dự án", HttpStatus.NOT_FOUND),
     TASK_NOT_FOUND("ERR_404", "Không tìm thấy công việc", HttpStatus.NOT_FOUND),
-    YOU_DONT_PERMISSI_TASK("404", "Bạn không có quyền thực hiện công việc này" , HttpStatus.FORBIDDEN),
+    YOU_DONT_PERMISSIT_TASK("404", "Bạn không có quyền thực hiện công việc này" , HttpStatus.FORBIDDEN),
 
     DEPARTMENT_NOT_FOUND("ERR_404", "Không tìm thấy phòng ban", HttpStatus.NOT_FOUND),
     DEPARTMENT_ALREADY_DELETED("ERR_409", "Phòng ban đã bị xóa", HttpStatus.CONFLICT),

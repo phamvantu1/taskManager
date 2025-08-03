@@ -8,9 +8,11 @@ import com.example.taskManager.model.DTO.response.InfoProjectResponse;
 import com.example.taskManager.model.DTO.response.ProjectMemberView;
 import com.example.taskManager.model.entity.Department;
 import com.example.taskManager.model.entity.Project;
+import com.example.taskManager.model.entity.Task;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.DepartmentRepository;
 import com.example.taskManager.repository.ProjectRepository;
+import com.example.taskManager.repository.TaskRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public Map<String, String> createProject(ProjectRequest projectRequest) {
@@ -106,6 +109,12 @@ public class ProjectService {
             Project project = projectRepository.findById(projectId)
                     .orElseThrow(() -> new CustomException(ResponseCode.PROJECT_NOT_FOUND));
 
+            List<Task> taskList = taskRepository.findByProjectId(projectId);
+
+            int numberOfTaskFinish = taskList.stream()
+                    .filter(task -> task.getStatus().equals("COMPLETED"))
+                    .toList().size();
+
             if(project.getDepartment()!= null){
                 Department department = departmentRepository.findById(project.getDepartment().getId())
                         .orElseThrow(() -> new CustomException(ResponseCode.DEPARTMENT_NOT_FOUND));
@@ -133,6 +142,10 @@ public class ProjectService {
             response.setStatus(project.getStatus());
             response.setStartDate(project.getStartTime());
             response.setEndDate(project.getEndTime());
+            response.setProgress(!taskList.isEmpty() ? (numberOfTaskFinish * 100 / taskList.size()) : 0);
+            response.setDepartmentId(project.getDepartment().getId());
+            response.setOwnerId(project.getOwner().getId());
+            response.setType_project(project.getType());
 
             return response;
 

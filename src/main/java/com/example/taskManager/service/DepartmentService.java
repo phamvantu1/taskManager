@@ -108,6 +108,7 @@ public class DepartmentService {
             response.setUpdatedAt(department.getUpdatedAt());
             response.setNumberOfProjects((long)listProject.size());
             response.setNumberOfUsers((long) departmentUser.size());
+            response.setLeaderId(leaderUser != null ? leaderUser.getId() : null);
 
             return response;
 

@@ -27,4 +27,14 @@ public class InfoProjectResponse {
 
     private String departmentName;
 
+    private int progress;
+
+    private Long departmentId;
+
+    private String type_project;
+
+    private Long ownerId;
+
+
+
 }

@@ -62,4 +62,10 @@ public class TaskController {
 
     }
 
+    @PutMapping("/approve-completed-task/{taskId}")
+    public ResponseEntity<Response<?>> approveCompletedTask(@PathVariable(name = "taskId") Long taskId,
+                                                             Authentication authentication) {
+        return ResponseEntity.ok(Response.success(taskService.approveCompletedTask(taskId, authentication)));
+    }
+
 }

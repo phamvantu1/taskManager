@@ -33,7 +33,7 @@ public class User {
 
     private LocalDate DateOfBirth;
 
-    private String  gender;
+    private String gender;
 
     @Column(name = "is_active")
     private Boolean isActive;

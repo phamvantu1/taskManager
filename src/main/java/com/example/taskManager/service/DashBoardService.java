@@ -284,7 +284,7 @@ public class DashBoardService {
         }
     }
 
-    public void exportToExcel(HttpServletResponse response, List<UserTaskDashBoardResponse> data) throws Exception {
+    public void exportToExcel(HttpServletResponse response, List<UserTaskDashBoard> data) throws Exception {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("User Task Dashboard");
 
@@ -300,7 +300,7 @@ public class DashBoardService {
 
         // Data
         int rowNum = 1;
-        for (UserTaskDashBoardResponse dto : data) {
+        for (UserTaskDashBoard dto : data) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(dto.getName());
             row.createCell(1).setCellValue(dto.getDepartmentName());
@@ -312,12 +312,12 @@ public class DashBoardService {
             row.createCell(7).setCellValue(dto.getTotalTasks() != null ? dto.getTotalTasks() : 0);
             row.createCell(8).setCellValue(dto.getPlusPoint() != null ? dto.getPlusPoint() : 0);
             row.createCell(9).setCellValue(dto.getMinusPoint() != null ? dto.getMinusPoint() : 0);
-            row.createCell(10).setCellValue(dto.getTotalPoint() != null ? dto.getTotalPoint() : 0);
+            row.createCell(10).setCellValue(dto.getTotalScore() != null ? dto.getTotalScore() : 0);
         }
 
         // Set content type and download
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=Báo cáo tổng quan.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=Bao_Cao_Tong_Quan.xlsx");
 
         workbook.write(response.getOutputStream());
         workbook.close();

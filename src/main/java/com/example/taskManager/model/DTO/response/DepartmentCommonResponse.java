@@ -16,6 +16,8 @@ public class DepartmentCommonResponse {
 
     private String leaderName;
 
+    private Long leaderId;
+
     private String createdByName;
 
     private LocalDateTime createdAt;

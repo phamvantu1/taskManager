@@ -15,12 +15,14 @@ import com.example.taskManager.repository.ProjectRepository;
 import com.example.taskManager.repository.TaskRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.ColumnTransformers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -177,6 +179,7 @@ public class TaskService {
         }
     }
 
+    @Transactional
     public Map<String, String> updateTask(Long taskId, TaskRequest taskRequest) {
         try {
 
@@ -236,10 +239,9 @@ public class TaskService {
                     .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
 
             if (!task.getAssignedTo().getId().equals(user.getId())) {
-                throw new CustomException(ResponseCode.YOU_DONT_PERMISSI_TASK);
+                throw new CustomException(ResponseCode.YOU_DONT_PERMISSIT_TASK);
             }
-            task.setProcess(100L);
-            task.setStatus(TaskStatusEnum.COMPLETED.name());
+            task.setStatus(TaskStatusEnum.WAIT_COMPLETED.name());
             task.setUpdatedAt(LocalDateTime.now());
 
             taskRepository.save(task);
@@ -252,6 +254,36 @@ public class TaskService {
             throw new RuntimeException("Có lỗi trong quá trình hoàn thành công việc " + e.getMessage());
         }
     }
+
+    public Map<String, String> approveCompletedTask(Long taskId, Authentication authentication) {
+        try {
+
+            User user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            if (!task.getCreatedBy().equals(user.getId())) {
+                throw new CustomException(ResponseCode.YOU_DONT_PERMISSIT_TASK);
+            }
+
+            task.setStatus(TaskStatusEnum.COMPLETED.name());
+            task.setProcess(100L);
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "Công việc đã được phê duyệt hoàn thành");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình phê duyệt công việc " + e.getMessage());
+        }
+    }
+
+
 
 
 }

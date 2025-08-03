@@ -1,5 +1,6 @@
 package com.example.taskManager.repository;
 
+import com.example.taskManager.model.DTO.response.UserTaskDashBoard;
 import com.example.taskManager.model.DTO.response.UserTaskDashBoardResponse;
 import com.example.taskManager.model.entity.Task;
 import org.springframework.data.domain.Page;
@@ -106,7 +107,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                                          AND (:startTime is null or t.start_time >= CAST(:startTime AS TIMESTAMP))
                                        AND (:endTime is null or t.end_time <= CAST(:endTime AS TIMESTAMP))
                                        GROUP BY u.id, u.email, d.name
-                                       ORDER BY u.email DESC
+                                       ORDER BY u.email , total_score desc
             """,
             nativeQuery = true,
             countQuery = """
@@ -156,16 +157,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       AND (:startTime is null or t.start_time >= CAST(:startTime AS TIMESTAMP))
       AND (:endTime is null or t.end_time <= CAST(:endTime AS TIMESTAMP))
     GROUP BY u.id, u.email, d.name
-    ORDER BY u.email DESC
+    ORDER BY u.email , total_score desc
     """,
             nativeQuery = true)
-    List<UserTaskDashBoardResponse> exportDashboardUserTasks(
+    List<UserTaskDashBoard> exportDashboardUserTasks(
             @Param("departmentId") Long departmentId,
             @Param("textSearch") String textSearch,
             @Param("startTime") String startTime,
             @Param("endTime") String endTime
     );
 
+
+    List<Task> findByProjectId(Long projectId);
 
 
 }
