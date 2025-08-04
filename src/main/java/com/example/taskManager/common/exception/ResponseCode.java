@@ -26,6 +26,10 @@ public enum ResponseCode {
     USER_CAN_NOT_UPDATE("ERR_404", "Bạn không thể cập nhập thông tin người khác", HttpStatus.NOT_FOUND),
 
 
+
+    NOTIFICATION_NOT_FOUND("ERR_404", "Không tìm thấy thông báo", HttpStatus.NOT_FOUND),
+
+
     ROLE_NOT_FOUND("ERR_404", "Không tìm thấy vai trò", HttpStatus.NOT_FOUND),
 
 
