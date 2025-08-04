@@ -1,5 +1,6 @@
 package com.example.taskManager.service;
 
+import com.example.taskManager.common.constant.StatusExtend;
 import com.example.taskManager.common.constant.TaskLeverEnum;
 import com.example.taskManager.common.constant.TaskStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
@@ -24,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,7 @@ public class TaskService {
             task.setCreatedAt(LocalDateTime.now());
             task.setUpdatedAt(LocalDateTime.now());
             task.setProcess(0L);
+            task.setIsExtend(false);
             task.setIsDeleted(false);
 
             taskRepository.save(task);
@@ -280,6 +283,54 @@ public class TaskService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Có lỗi trong quá trình phê duyệt công việc " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> rejectCompletedTask(Long taskId, Authentication authentication) {
+        try {
+
+            User user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
+
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            if (!task.getCreatedBy().equals(user.getId())) {
+                throw new CustomException(ResponseCode.YOU_DONT_PERMISSIT_TASK);
+            }
+
+            task.setStatus(TaskStatusEnum.PROCESSING.name());
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "Công việc đã bị từ chối hoàn thành");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình từ chối công việc " + e.getMessage());
+        }
+    }
+
+    public Map<String, String> extendTask(Long taskId, String newEndTime) {
+        try {
+
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new CustomException(ResponseCode.TASK_NOT_FOUND));
+
+            task.setEndTime(LocalDate.parse(newEndTime));
+            task.setIsExtend(true);
+            task.setUpdatedAt(LocalDateTime.now());
+
+            taskRepository.save(task);
+
+            return Map.of("message", "Gia hạn công việc thành công");
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Có lỗi trong quá trình gia hạn công việc " + e.getMessage());
         }
     }
 

@@ -68,4 +68,16 @@ public class TaskController {
         return ResponseEntity.ok(Response.success(taskService.approveCompletedTask(taskId, authentication)));
     }
 
+    @PutMapping("/reject-completed-task/{taskId}")
+    public ResponseEntity<Response<?>> rejectCompletedTask(@PathVariable(name = "taskId") Long taskId,
+                                                            Authentication authentication) {
+        return ResponseEntity.ok(Response.success(taskService.rejectCompletedTask(taskId, authentication)));
+    }
+
+    @PutMapping("/extend-task/{taskId}")
+    public ResponseEntity<Response<?>> extendTask(@PathVariable(name = "taskId") Long taskId,
+                                                  @RequestParam(name = "newEndTime") String newEndTime) {
+        return ResponseEntity.ok(Response.success(taskService.extendTask(taskId, newEndTime)));
+    }
+
 }
