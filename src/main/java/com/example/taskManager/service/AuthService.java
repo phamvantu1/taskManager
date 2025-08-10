@@ -36,12 +36,6 @@ public class AuthService {
     private final OtpRepository otpRepository;
     private final RoleRepository roleRepository;
 
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void removeBlacklistedTokens(){
-        jwtBlacklistService.cleanExpiredTokens();
-    }
-
     public Map<String, String> register(RegisterRequest registerRequest) {
         try {
             // Kiểm tra xem email đã tồn tại chưa

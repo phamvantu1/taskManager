@@ -1,7 +1,6 @@
 package com.example.taskManager.service;
 
-import com.example.taskManager.common.constant.StatusExtend;
-import com.example.taskManager.common.constant.TaskLeverEnum;
+import com.example.taskManager.common.constant.ScoreTypeEnum;
 import com.example.taskManager.common.constant.TaskStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
@@ -11,16 +10,18 @@ import com.example.taskManager.model.DTO.request.TaskRequest;
 import com.example.taskManager.model.DTO.response.DashboardTaskResponse;
 import com.example.taskManager.model.DTO.response.TaskResponse;
 import com.example.taskManager.model.entity.Project;
+import com.example.taskManager.model.entity.Score;
 import com.example.taskManager.model.entity.Task;
 import com.example.taskManager.model.entity.User;
 import com.example.taskManager.repository.ProjectRepository;
+import com.example.taskManager.repository.ScoreRepository;
 import com.example.taskManager.repository.TaskRepository;
 import com.example.taskManager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.ColumnTransformers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,29 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
     private final NotificationService notificationService;
+    private final ScoreRepository scoreRepository;
+
+    @Transactional
+    public void checkExpiredTasks() {
+        LocalDate now = LocalDate.now();
+
+        List<Task> expiredTasks = taskRepository.findByEndTimeBefore(now);
+
+        expiredTasks.forEach(task -> {
+           task.setStatus(TaskStatusEnum.OVERDUE.name());
+           task.setUpdatedAt(LocalDateTime.now());
+
+            Score score = new Score();
+            score.setUserId(task.getAssignedTo().getId());
+            score.setTaskId(task.getId());
+            score.setScoreType(ScoreTypeEnum.minus.name());
+            score.setScoreValue((long) 1);
+            score.setCreatedAt(LocalDateTime.now().toString());
+            scoreRepository.save(score);
+        });
+
+        taskRepository.saveAll(expiredTasks);
+    }
 
 
     public Map<String, String> createTask(TaskRequest taskRequest) {
@@ -318,6 +342,14 @@ public class TaskService {
                     .build();
 
             notificationService.createNotification(noticeDTO);
+
+            Score score = new Score();
+            score.setUserId(task.getAssignedTo().getId());
+            score.setTaskId(task.getId());
+            score.setScoreType(ScoreTypeEnum.plus.name());
+            score.setScoreValue(task.getLever() == null ? 0 : task.getLever() + 1);
+            score.setCreatedAt(LocalDateTime.now().toString());
+            scoreRepository.save(score);
 
             return Map.of("message", "Công việc đã được phê duyệt hoàn thành");
 

@@ -22,5 +22,7 @@ public class ProjectRequest {
 
     private Long departmentId;
 
+    private int status;
+
 
 }

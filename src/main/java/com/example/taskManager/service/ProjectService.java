@@ -190,6 +190,7 @@ public class ProjectService {
             project.setOwner(owner);
             project.setType(projectRequest.getType());
             project.setDepartment(department);
+            project.setStatus(ProjectStatusEnum.fromLevel(projectRequest.getStatus()).name());
 
             projectRepository.save(project);
 
