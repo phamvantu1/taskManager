@@ -21,4 +21,7 @@ public class DashboardTaskResponse {
     @JsonProperty("TOTAL")
     private Long total;
 
+    @JsonProperty("WAIT_COMPLETED")
+    private Long waitCompleted;
+
 }

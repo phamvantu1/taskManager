@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,12 +50,13 @@ public class NotificationService {
         }
     }
 
-    public Page<NoticeDTO> getAllNotifications(Long userId, int page, int size) {
+    public Page<NoticeDTO> getAllNotifications(Authentication authentication, int page, int size) {
         try {
 
             Pageable pageable = PageRequest.of(page, size);
 
-            User user = userRepository.findById(userId)
+
+            User user = userRepository.findByEmail(authentication.getName())
                     .orElseThrow(() -> new CustomException(ResponseCode.USER_NOT_FOUND));
 
             Page<Notification> notifications = notificationRepository.getAllNotifications(user.getId(), pageable);

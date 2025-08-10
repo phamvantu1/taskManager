@@ -6,6 +6,7 @@ import com.example.taskManager.model.DTO.request.NoticeDTO;
 import com.example.taskManager.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,10 +23,10 @@ public class NotificationController {
     }
 
     @GetMapping("/get-all-notifications")
-    public ResponseEntity<Response<?>> getAllNotifications(@RequestParam(name = "userId") Long userId,
+    public ResponseEntity<Response<?>> getAllNotifications(Authentication authentication,
                                                            @RequestParam(name = "page", defaultValue = "0") int page,
                                                            @RequestParam(name = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(Response.success(notificationService.getAllNotifications(userId, page, size)));
+        return ResponseEntity.ok(Response.success(notificationService.getAllNotifications(authentication, page, size)));
     }
 
     @PutMapping("/mark-as-read/{notificationId}")

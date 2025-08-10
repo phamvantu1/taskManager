@@ -6,6 +6,7 @@ import com.example.taskManager.common.constant.TaskStatusEnum;
 import com.example.taskManager.common.exception.CustomException;
 import com.example.taskManager.common.exception.ResponseCode;
 import com.example.taskManager.mapper.TaskMapper;
+import com.example.taskManager.model.DTO.request.NoticeDTO;
 import com.example.taskManager.model.DTO.request.TaskRequest;
 import com.example.taskManager.model.DTO.response.DashboardTaskResponse;
 import com.example.taskManager.model.DTO.response.TaskResponse;
@@ -38,6 +39,7 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final NotificationService notificationService;
 
 
     public Map<String, String> createTask(TaskRequest taskRequest) {
@@ -70,7 +72,19 @@ public class TaskService {
             task.setIsExtend(false);
             task.setIsDeleted(false);
 
-            taskRepository.save(task);
+            var newTask = taskRepository.save(task);
+
+            NoticeDTO noticeDTO = NoticeDTO.builder()
+                    .userId(assignee.getId())
+                    .title("Công việc mới được giao")
+                    .message("Bạn đã được giao công việc: " + task.getTitle())
+                    .isRead(false)
+                    .createdAt(LocalDateTime.now())
+                    .referenceType("TASK")
+                    .referenceId(newTask.getId())
+                    .build();
+
+            notificationService.createNotification(noticeDTO);
 
             return Map.of("message", "Tạo mới công việc thành công");
         } catch (CustomException e) {
@@ -132,6 +146,7 @@ public class TaskService {
             long completedCount = 0;
             long pendingCount = 0;
             long overdueCount = 0;
+            long waitCompletedCount = 0;
 
             DashboardTaskResponse dashboardResponse = new DashboardTaskResponse();
 
@@ -145,6 +160,8 @@ public class TaskService {
                     completedCount++;
                 } else if ("PENDING".equalsIgnoreCase(status)) {
                     pendingCount++;
+                } else if ("WAIT_COMPLETED".equalsIgnoreCase(status)) {
+                    waitCompletedCount++;
                 } else {
                     overdueCount++;
                 }
@@ -155,6 +172,7 @@ public class TaskService {
             dashboardResponse.setPending(pendingCount);
             dashboardResponse.setOverdue(overdueCount);
             dashboardResponse.setTotal((long) tasks.size());
+            dashboardResponse.setWaitCompleted(waitCompletedCount);
 
             return dashboardResponse;
 
@@ -249,6 +267,18 @@ public class TaskService {
 
             taskRepository.save(task);
 
+            NoticeDTO noticeDTO = NoticeDTO.builder()
+                    .userId(task.getCreatedBy())
+                    .title("Công việc yêu cầu phê duyệt hoàn thành")
+                    .message("Công việc yêu cầu phê duyệt hoàn thành: " + task.getTitle())
+                    .isRead(false)
+                    .createdAt(LocalDateTime.now())
+                    .referenceType("TASK")
+                    .referenceId(task.getId())
+                    .build();
+
+            notificationService.createNotification(noticeDTO);
+
             return Map.of("message", "Công vệc hoàn thành");
 
         } catch (CustomException e) {
@@ -277,6 +307,18 @@ public class TaskService {
 
             taskRepository.save(task);
 
+            NoticeDTO noticeDTO = NoticeDTO.builder()
+                    .userId(task.getAssignedTo().getId())
+                    .title("Công việc đã được phê duyệt hoàn thành")
+                    .message("Công việc đã được phê duyệt hoàn thành : " + task.getTitle())
+                    .isRead(false)
+                    .createdAt(LocalDateTime.now())
+                    .referenceType("TASK")
+                    .referenceId(task.getId())
+                    .build();
+
+            notificationService.createNotification(noticeDTO);
+
             return Map.of("message", "Công việc đã được phê duyệt hoàn thành");
 
         } catch (CustomException e) {
@@ -303,6 +345,18 @@ public class TaskService {
             task.setUpdatedAt(LocalDateTime.now());
 
             taskRepository.save(task);
+
+            NoticeDTO noticeDTO = NoticeDTO.builder()
+                    .userId(task.getAssignedTo().getId())
+                    .title("Công việc yêu cầu phê duyệt hoàn thành đã bị từ chối")
+                    .message("Công việc yêu cầu phê duyệt hoàn thành đã bị từ chối" + task.getTitle())
+                    .isRead(false)
+                    .createdAt(LocalDateTime.now())
+                    .referenceType("TASK")
+                    .referenceId(task.getId())
+                    .build();
+
+            notificationService.createNotification(noticeDTO);
 
             return Map.of("message", "Công việc đã bị từ chối hoàn thành");
 

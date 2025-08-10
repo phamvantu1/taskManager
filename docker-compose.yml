@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: taskManager_mbf
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring_app
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskManager_mbf
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: pvt1213.phamvantu@gmail.com
+      SPRING_MAIL_PASSWORD: movnbpvotcidvrym
+      APPLICATION_SERCURITY_JWT_SECRET_KEY: 8e29c681e354368d6ec0358461b9897180c6b9c9e77754cad6cd1c042e306b028e9e214b41e4632576f2e6f0899d4b165f5bb193199702f9c336cfffb0db5d19
+      APPLICATION_SERCURITY_JWT_EXPIRATION: 86400000
+      APPLICATION_SERCURITY_JWT_REFRESH_TOKEN_EXPIRATION: 604800000
+
+volumes:
+  postgres_data:

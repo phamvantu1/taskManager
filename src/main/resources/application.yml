@@ -1,27 +1,21 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/taskManager_mbf
-    username: postgres
-    password: 123456
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
-    show-sql: false
-    open-in-view: false
-
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: pvt1213.phamvantu@gmail.com
-    password: movnbpvotcidvrym
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -32,7 +26,7 @@ spring:
 application:
   sercurity:
     jwt:
-      secret-key: 8e29c681e354368d6ec0358461b9897180c6b9c9e77754cad6cd1c042e306b028e9e214b41e4632576f2e6f0899d4b165f5bb193199702f9c336cfffb0db5d19
-      expiration: 86400000 #  1 ngay
+      secret-key: ${APPLICATION_SERCURITY_JWT_SECRET_KEY}
+      expiration: ${APPLICATION_SERCURITY_JWT_EXPIRATION}
       refresh-token:
-        expiration: 604800000 #  7 ngay
+        expiration: ${APPLICATION_SERCURITY_JWT_REFRESH_TOKEN_EXPIRATION}
