@@ -54,7 +54,7 @@ public class ProjectService {
             project.setEndTime(projectRequest.getEndTime());
             project.setStartTime(projectRequest.getStartTime());
             project.setStatus(ProjectStatusEnum.PENDING.name());
-            project.setType(projectRequest.getType());
+            project.setType(projectRequest.getType_project());
             project.setIsDeleted(false);
 
             User user = userRepository.findById(projectRequest.getOwnerId())
