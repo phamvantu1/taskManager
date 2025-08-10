@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,24 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
     private final TaskRepository taskRepository;
+
+    @Transactional
+    public void checkExpiredProject(){
+        try {
+           List<Project> listProjectExpired = projectRepository.findExpiredProjects(LocalDate.now());
+            if (listProjectExpired.isEmpty()) {
+                return;
+            }
+            for (Project project : listProjectExpired) {
+                project.setStatus(ProjectStatusEnum.OVERDUE.name());
+                project.setUpdateTime(LocalDateTime.now());
+                projectRepository.save(project);
+            }
+        } catch (Exception e) {
+            log.error("Error checking expired projects: {}", e.getMessage());
+            throw new RuntimeException("Failed to check expired projects: " + e.getMessage());
+        }
+    }
 
     @Transactional
     public Map<String, String> createProject(ProjectRequest projectRequest) {

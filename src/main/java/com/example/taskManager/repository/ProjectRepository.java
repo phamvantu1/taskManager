@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
@@ -84,5 +85,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
 
+    @Query(value = "SELECT  * from projects p " +
+            "where p.end_time < :currentDate " +
+            " and p.is_deleted = true " +
+            " and p.status != 'COMPLETED' "
+    , nativeQuery = true)
+    List<Project> findExpiredProjects(LocalDate currentDate);
 
 }

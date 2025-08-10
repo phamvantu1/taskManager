@@ -10,11 +10,13 @@ import org.springframework.stereotype.Service;
 public class ScheduleService {
     private final JwtBlacklistService jwtBlacklistService;
     private final TaskService taskService;
+    private final ProjectService projectService;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void automaticJob(){
+    public void automaticJob() {
         taskService.checkExpiredTasks();
         jwtBlacklistService.cleanExpiredTokens();
+        projectService.checkExpiredProject();
     }
 }
 

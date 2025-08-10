@@ -172,5 +172,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByProjectId(Long projectId);
 
 
+    @Query(value = "select * from tasks t " +
+            "where t.end_time < :date and t.is_deleted = 'false' " +
+            " and t.status != 'COMPLETED' " +
+            "order by t.updated_at desc"
+    ,nativeQuery = true)
     List<Task> findByEndTimeBefore(LocalDate date);
 }
