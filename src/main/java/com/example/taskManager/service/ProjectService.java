@@ -188,7 +188,7 @@ public class ProjectService {
             project.setEndTime(projectRequest.getEndTime());
             project.setUpdateTime(LocalDateTime.now());
             project.setOwner(owner);
-            project.setType(projectRequest.getType());
+            project.setType(projectRequest.getType_project());
             project.setDepartment(department);
             project.setStatus(ProjectStatusEnum.fromLevel(projectRequest.getStatus()).name());
 
