@@ -158,7 +158,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
       AND (:startTime is null or t.start_time >= CAST(:startTime AS TIMESTAMP))
       AND (:endTime is null or t.end_time <= CAST(:endTime AS TIMESTAMP))
     GROUP BY u.id, u.email, d.name
-    ORDER BY u.email , total_score desc
+    ORDER BY u.email , totalScore desc
     """,
             nativeQuery = true)
     List<UserTaskDashBoard> exportDashboardUserTasks(

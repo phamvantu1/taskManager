@@ -58,6 +58,14 @@ public class DepartmentService {
 
             departmentRepository.save(department);
 
+            DepartmentUser departmentUser = new DepartmentUser();
+            departmentUser.setDepartment(department);
+            departmentUser.setUser(leader);
+            departmentUser.setRole("LEADER");
+            departmentUser.setJoinedAt(LocalDateTime.now());
+            departmentUser.setIsDeleted(false);
+            departmentUserRepository.save(departmentUser);
+
             return Map.of("message", "Thêm mới phòng ban thành công", "departmentId", String.valueOf(department.getId()));
 
         }catch (CustomException e) {

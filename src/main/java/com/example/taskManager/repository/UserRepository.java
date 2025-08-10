@@ -88,8 +88,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "left join departments d on d.id = du.department_id " +
             "WHERE u.id NOT IN :excludedIds " +
             " and u.is_active = 'true' " +
-            " and d.status = 'ACTIVE' " +
-            "and (:departmentId IS NULL OR du.department_id = :departmentId) " +
+            "and (:departmentId IS NULL OR (du.department_id = :departmentId  and d.status = 'ACTIVE' )) " +
             " and (:textSearch is null or u.first_name ILIKE concat('%', lower(:textSearch), '%' )  " +
             "  or u.last_name ILIKE concat('%', lower(:textSearch), '%' ) " +
             "  or u.email ILIKE concat('%', lower(:textSearch), '%' )  ) "
