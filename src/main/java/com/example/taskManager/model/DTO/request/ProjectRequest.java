@@ -18,7 +18,7 @@ public class ProjectRequest {
 
     private Long ownerId;
 
-    private String type;
+    private String type_project;
 
     private Long departmentId;
 
