@@ -1,0 +1,76 @@
+
+Tuần 1 : ( 05/10 - 12/10)
+- Phân tích YC ( tú , minh )
+- Kịch bản các chức năng ( tú , minh )
+- UC, ERD, Kiến trúc hệ thống ( tú  )
+- Dựng khung FE ( phúc )
+- Định hình UI các chức năng ( đã list ra ở file tài liệu chức năng )( minh + phúc )
+- Tìm cách kéo ô ký số vào trong tài liệu ( minh , phúc )
+
+Tuần 2 : ( 13/10 - 19/10)
+- dựng khung BE : ( tú )
++ chia nhỏ hệ thống thành các service
++ quản lý luồng đăng nhập
++ quản lý tổ chức
++ quản lý người dùng
+
+- FE ( minh + phúc)
++ dựng UI
++ ghép API : ( do đợi BE nên có thể k xong trong tuần, thì có thể để tuần sau )
+	* luồng đăng nhập
+	* Quản lý tổ chức
+	* Quản lý người dùng
+
+Tuần 3 : ( 20/10 - 26/10)
+- BE : ( tú )
++ Quản lý hợp đồng
+	* thêm 
+	* sửa
+	* xóa
+	* xem
+	* ...
+- FE : ( minh + phúc)
++ Dựng UI quản lý hợp đồng
++ ghép API của tuần trước
++ ghép API tuần này  ( do đợi BE nên có thể k xong trong tuần, thì có thể để tuần sau )
+	* API của luồng quản lý hợp đồng
+	
+
+Tuần 4 (27/10 - 2/11)	
+- BE ( tú )
++ Quản lý luồng ký 
+	* Người điều phối
+	* Người xem xét
+	* Người ký
+	* Văn thư
++ Quản lý chữ ký số ( chứng thư số server )	
+
+- FE :  (minh + phúc)
++ Ghép API của tuần trước còn thiếu
++ Dựng UI cho màn quản lý chứng thư số
++ Ghép API cho luồng ký 
++ Ghép API cho luồng quản lý chứng thư số
+
+Tuần 5 ( 3/11 - 9/11 )
+- BE ( tú )
++ Quản lý luồng thông báo
++ Quản lý dashboard báo cáo
+
+- FE ( minh + phúc )
++ Ghép các API còn thiếu tuần trước
++ Dựng UI cho màn thông báo
++ Dựng UI cho màn dashboard
++ Ghép API cho thông báo
++ Ghép API cho dashboard
+
+Tuần 6 ( 10/11 - 16/11 )
+- Kiểm thử
+- Fix bug
+
+Tuần 7 trở đi (17/11 -> tháng 12)
+- tập trung hoàn thiện báo cáo
+- phát triển tính năng mới nếu có 
+	
+	
+	
+
